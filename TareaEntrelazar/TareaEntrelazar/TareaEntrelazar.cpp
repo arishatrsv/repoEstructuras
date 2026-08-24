@@ -337,10 +337,7 @@ int main() {
 	cout << "L2 -> "; L2.Mostrar();
 
 	L1.Entrelazar(L2);
-
 	cout << endl << "Despues de entrelazar:" << endl;
 	cout << "L1 -> "; L1.Mostrar();
 	cout << "L2 -> "; L2.Mostrar();
-
-	return 0;
-}
+	return 0;}
