@@ -286,7 +286,9 @@ void lista::Entrelazar(lista& L2)
 	}
 }
 
+
 int main() {
+	/*
 	lista proceso; //Objeto de la clase lista
 	cout << "Ejercicio#1" << endl;
 	proceso.ProcesarNumero(6234, 5890); //llama al método para ejecutar
@@ -305,7 +307,7 @@ int main() {
 
 	lista proceso5;
 	cout << endl << "Ejercicio#5" << endl;
-	proceso5.SumaElevado(23345);
+	proceso5.SumaElevado(23345);*/
 
 	cout << endl << "EJERCICIO ENTRELAZAR" << endl;
 
