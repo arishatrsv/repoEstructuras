@@ -1,3 +1,6 @@
+//Creado por: Hilary Aguilar y Arina Tarasova
+
+
 #include <iostream>  //Librería: entrada y salida de datos
 using namespace std;  //imprimir en pantalla
 
@@ -230,68 +233,62 @@ void lista::SumaElevado(int num) {
 
 void lista::Entrelazar(lista& L2)
 {
-	int largo = LargoLista();
-	if (largo != L2.LargoLista()) {
+	int largo = LargoLista(); //Obtiene el largo de la lista L1
+	if (largo != L2.LargoLista()) { //Verifica que ambas listas tengan mismo largo
 		cout << "Las listas no tienen el mismo largo" << endl;
 		return;
 	}
 
-	int pos = 1; // posicion actual dentro de L1 (solo posiciones impares)
-	while (pos <= largo) { //que no se pase de la longitud de la lista
-		// ---- Buscar el nodo de L1 que esta en la posicion "pos" ----
-		pnodo nodoImparL1 = primero;
+	int pos = 1; //inicia en la posición 1 de L1, solo posiciones impares
+	while (pos <= largo) {  //repite el proceso para las posiciones impares de L1
+		pnodo nodoImparL1 = primero; //inicia el puntero desde el primer nodo de L1
 		int cont = 1;
-		while (cont < pos) {
+		while (cont < pos) { //recorre L1 hasta llegar al nodo de la posición impar
 			nodoImparL1 = nodoImparL1->siguiente;
 			cont = cont + 1;
 		}
 
-		// Posicion destino en L2 = pos + 2, dando la vuelta si se pasa de largo
-		int posDestino = pos + 2;
+		int posDestino = pos + 2; //busca en L2 el nodo que está dos posiciones adelante
 		if (posDestino > largo) {
-			posDestino = posDestino - largo;
+			posDestino = posDestino - largo; // vuelve al inicio de L2
 		}
 
-		// ---- Buscar el nodo de L2 que esta en la posicion "posDestino" ----
-		pnodo nodoDestinoL2 = L2.primero;
+		pnodo nodoDestinoL2 = L2.primero; //inicia el puntero desde el primer nodo de L2
 		cont = 1;
-		while (cont < posDestino) {
+		while (cont < posDestino) { //recorre L2 hasta encontrar el nodo destino
 			nodoDestinoL2 = nodoDestinoL2->siguiente;
 			cont = cont + 1;
 		}
 
-		// Guardamos el nodo que L1 va a dejar huerfano (antes de romper el enlace)
-		pnodo huerfano = nodoImparL1->siguiente;
+		pnodo solo = nodoImparL1->siguiente; //guarda el nodo que estaba después del nodo impar de L1
 
-		// El nodo impar de L1 ahora apunta al nodo robado de L2
-		nodoImparL1->siguiente = nodoDestinoL2;
+		nodoImparL1->siguiente = nodoDestinoL2; //el nodo impar de L1 ahora apunta al nodo destino de L2
 
-		if (posDestino == 1) {
-			// Dio la vuelta: no hay nodo anterior en L2, se pega el
-			// huerfano al final de L2 (buscamos el ultimo nodo)
-			pnodo ultimoL2 = L2.primero;
-			while (ultimoL2->siguiente != NULL) {
-				ultimoL2 = ultimoL2->siguiente;
+		if (posDestino == 1) { // verifica si el nodo de L2 que se tomó era el primero
+			pnodo ultimoL2 = L2.primero; //inicia desde el primer nodo de L2
+
+			while (ultimoL2->siguiente != NULL) { //recorre L2 hasta encontrar el último nodo
+				ultimoL2 = ultimoL2->siguiente; 
 			}
-			ultimoL2->siguiente = huerfano;
+			ultimoL2->siguiente = solo; //Conceta el nodo que está solo al final de L2
 		}
 		else {
-			// ---- Buscar el nodo de L2 en la posicion (posDestino - 1) ----
-			// (el que originalmente apuntaba al nodo robado)
-			pnodo nodoAnteriorL2 = L2.primero;
+			pnodo nodoAnteriorL2 = L2.primero; //inicia desde el primer nodo de L2
 			cont = 1;
-			while (cont < posDestino - 1) {
+			while (cont < posDestino - 1) { // busca el nodo anterior al nodo tomado de L2
 				nodoAnteriorL2 = nodoAnteriorL2->siguiente;
 				cont = cont + 1;
 			}
-			nodoAnteriorL2->siguiente = huerfano;
+			nodoAnteriorL2->siguiente = solo; // conecta el nodo anterior de L2 con el nodo que quedó huérfano
 		}
 
-		pos = pos + 2; // pasamos a la siguiente posicion impar
+		pos = pos + 2; // pasa al siguiente nodo impar de L1
 	}
 }
 
+
 int main() {
+	/*
 	lista proceso; //Objeto de la clase lista
 	cout << "Ejercicio#1" << endl;
 	proceso.ProcesarNumero(6234, 5890); //llama al método para ejecutar
@@ -310,9 +307,9 @@ int main() {
 
 	lista proceso5;
 	cout << endl << "Ejercicio#5" << endl;
-	proceso5.SumaElevado(23345);
+	proceso5.SumaElevado(23345);*/
 
-	cout << "EJERCICIO ENTRELAZAR" << endl;
+	cout << endl << "EJERCICIO ENTRELAZAR" << endl;
 
 	// Construimos L1 = 5-6-3-12-23-56 insertando al inicio en orden inverso
 	lista L1;
@@ -332,7 +329,7 @@ int main() {
 	L2.InsertarInicio(9);
 	L2.InsertarInicio(8);
 
-	cout << "Antes de entrelazar:" << endl;
+	cout << endl << "Antes de entrelazar:" << endl;
 	cout << "L1 -> "; L1.Mostrar();
 	cout << "L2 -> "; L2.Mostrar();
 
