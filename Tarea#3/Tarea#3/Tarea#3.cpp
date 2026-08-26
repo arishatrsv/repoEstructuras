@@ -41,6 +41,8 @@ public:
 	void Entrelazar(lista& L2);
 	int NombreUNO(int num);
 	void NombreDOS(int num);
+	bool NombreTRES(int buscar);
+	bool NombreCUATRO(int buscar, int posicion);
 
 private:
 	pnodo primero;
@@ -329,6 +331,42 @@ void lista::NombreDOS(int num) {
 	Mostrar();
 }
 
+bool lista::NombreTRES(int buscar) {
+	pnodo nodoActual = primero; //inicia el recorrido desde el primer nodo de la lista
+
+	while (nodoActual != NULL) { //recorre hasta que no haya nodos
+		if (nodoActual->valor == buscar) { //compara el valor del nodo con el número buscado
+			cout << "True" << endl;
+			return true;
+		}
+		nodoActual = nodoActual->siguiente; //avanza al siguiente nodo
+	}
+
+	cout << "False" << endl;
+	return false;
+}
+
+bool lista::NombreCUATRO(int buscar, int posicion) {
+	pnodo nodoActual = primero; //inicia el recorrido desde el primer nodo de la lista
+	int cont = 1; //inicia la posición en 1
+
+	while (nodoActual != NULL) { //recorre hasta que no haya nodos
+		if (cont == posicion) { //verifica si llegó a la posición indicada
+			if (nodoActual->valor == buscar) { //compara el valor con el número buscado
+				cout << "True" << endl;
+				return true;
+			}
+			else {
+				cout << "False" << endl;
+				return false;
+			}
+		}
+		nodoActual = nodoActual->siguiente; //avanza al siguiente nodo
+		cont = cont + 1; //aumenta la posición
+	}
+	cout << "False" << endl;
+	return false;
+}
 
 
 int main() {
@@ -393,8 +431,45 @@ int main() {
 	cout << "3456891" << endl;
 	DOS.NombreDOS(3456891);
 
+	cout << endl << "NombreTRES" << endl;
+	lista TRES;
+
+	TRES.InsertarFinal(3);
+	TRES.InsertarFinal(4);
+	TRES.InsertarFinal(5);
+	TRES.InsertarFinal(6);
+	TRES.InsertarFinal(8);
+	TRES.InsertarFinal(9);
+	TRES.InsertarFinal(1);
+
+	cout << "L1 -> ";
+	TRES.Mostrar();
+	cout << "Buscar 10 -> ";
+	TRES.NombreTRES(10);
+	cout << "Buscar 5 -> ";
+	TRES.NombreTRES(5);
+
+
+	cout << endl << "NombreCUATRO" << endl;
+	lista CUATRO;
+
+	CUATRO.InsertarFinal(3);
+	CUATRO.InsertarFinal(4);
+	CUATRO.InsertarFinal(5);
+	CUATRO.InsertarFinal(6);
+	CUATRO.InsertarFinal(8);
+	CUATRO.InsertarFinal(9);
+	CUATRO.InsertarFinal(1);
+
+	cout << "L1 -> ";
+	CUATRO.Mostrar();
+	cout << "Buscar 10 en posicion 3 -> ";
+	CUATRO.NombreCUATRO(10, 3);
+	cout << "Buscar 5 en posicion 4 -> ";
+	CUATRO.NombreCUATRO(5, 4);
+	cout << "Buscar 5 en posicion 3 -> ";
+	CUATRO.NombreCUATRO(5, 3);
 
 	return 0;
 }
 
-//test commit
