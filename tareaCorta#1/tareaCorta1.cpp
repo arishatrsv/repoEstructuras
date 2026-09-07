@@ -4,9 +4,10 @@
 #include <iostream>  // entrada y salida de datos
 #include <fstream>   // manejo y lectura de archivos de texto
 #include <string>    // manejo de cadenas de texto
-#include <cctype>    // funciones para validar caracteres (isdigit, isspace)
 
 using namespace std; 
+
+#define TAM 5 // Tamano estatico para la Bicola
 
 class nodo { 
 public:
@@ -22,7 +23,7 @@ private:
     string valor;     // almacena la expresion, operador o numero
     nodo* siguiente;  // guarda direccion del siguiente nodo
     friend class lista; // permite que la clase lista acceda a los miembros privados
-    friend class bicola; // permite que acceda a los miembros privados
+    friend class Bicola; // permite que acceda a los miembros privados
 };
 
 typedef nodo* pnodo; // Alias para puntero a nodo (pnodo = nodo*)
@@ -76,46 +77,126 @@ void lista::Mostrar() { // Imprime los elementos de la lista en orden
     }
 }
 
-class bicola {
+class Bicola {
 private:
-    pnodo arreglo[5]; // Arreglo estatico de 5 posiciones que guarda referencias a listas
-    int cantidad;     // Cantidad de elementos almacenados
+    pnodo datos[TAM]; // Guarda las referencias a las listas creadas por archivo
+    int frente;
+    int fondo;
+    int cantidad;
 
 public:
-    bicola() {
+    Bicola() {
+        frente = 0;
+        fondo = -1;
         cantidad = 0;
-        for (int i = 0; i < 5; i++) {
-            arreglo[i] = NULL; // Inicializa cada posicion del arreglo en NULL
+        for (int i = 0; i < TAM; i++) {
+            datos[i] = NULL;
         }
     }
 
-    void AsignarPosicion(int pos, pnodo primerNodo) { // Asigna la cabeza de la lista a la casilla
-        if (pos >= 0 && pos < 5) { //&& es and
-            arreglo[pos] = primerNodo;
+    bool estaVacia() {
+        return cantidad == 0;
+    }
+
+    bool estaLlena() {
+        return cantidad == TAM;
+    }
+
+    void insertarFrente(pnodo valor) {
+        if (estaLlena()) {
+            cout << "Bicola llena. No se puede insertar al frente.\n";
+            return;
+        }
+        else {
+            frente = (frente - 1 + TAM) % TAM;
+            datos[frente] = valor;
             cantidad++;
         }
     }
 
-    pnodo ObtenerPosicion(int pos) { // Devuelve el primer nodo almacenado en la posicion solicitada
-        if (pos >= 0 && pos < 5) {
-            return arreglo[pos];
+    void insertarFinal(pnodo valor) {
+        if (estaLlena()) {
+            cout << "Bicola llena. No se puede insertar al final.\n";
+            return;
+        }
+        else {
+            fondo = (fondo + 1) % TAM;
+            datos[fondo] = valor;
+            cantidad++;
+        }
+    }
+
+    pnodo eliminarFrente() {
+        if (estaVacia()) {
+            cout << "Bicola vacia.\n";
+            return NULL;
+        }
+        pnodo temp = datos[frente];
+        frente = (frente + 1) % TAM;
+        cantidad--;
+        return temp;
+    }
+
+    pnodo eliminarFinal() {
+        if (estaVacia()) {
+            cout << "Bicola vacia.\n";
+            return NULL;
+        }
+        pnodo temp = datos[fondo];
+        fondo = (fondo - 1 + TAM) % TAM;
+        cantidad--;
+        return temp;
+    }
+
+    pnodo obtenerPosicion(int pos) {
+        if (pos >= 0 && pos < TAM) {
+            return datos[pos];
         }
         return NULL;
     }
+
+    void mostrar() {
+        if (estaVacia()) {
+            cout << "Bicola vacia.\n";
+            return;
+        }
+        else {
+            cout << "Contenido de la bicola:\n";
+            int i = frente;
+            for (int pos = 0; pos < cantidad; pos++) {
+                cout << "Posicion [" << i << "]: ";
+                pnodo actual = datos[i];
+                while (actual != NULL) {
+                    cout << actual->valor << " ";
+                    actual = actual->siguiente;
+                }
+                cout << endl;
+                i = (i + 1) % TAM;
+            }
+        }
+    }
 };
+
+bool EsDigito(char c) {
+    return (c >= '0' && c <= '9');
+}
+
+bool EsEspacio(char c) { // Comprueba manualmente espacios en blanco o saltos de linea
+    return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+}
 
 bool EsOperador(char c) { // Valida si un caracter corresponde a un operador matematico
     return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')');
 } // || es or, retorna true o false. 
 
-pnodo LeerArchivoAContenidoLista(string rutaArchivo) { // Lee un archivo de texto y convierte su contenido en una lista enlazada simple
+pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte su contenido en una lista enlazada simple
     ifstream archivo(rutaArchivo.c_str()); // abre el archivo para lectura. c_str concierte string en un arreglo de caracteres
     if (!archivo.is_open()) { // is_open revisa si se abrio correctamente
         cout << "Error al abrir el archivo: " << rutaArchivo << endl;
         return NULL; //si no se pudo abrir
     }
 
-    lista listaExpresion; // lista donde se guardara la expresion original
+    lista* listaExpresion = new lista(); // Se crea dinamicamente en memoria para no perder los datos
     string linea; // para almacenat cada linea leida del archivo
     string expresionCompleta = ""; // para almacenar la expresion completa
 
@@ -130,22 +211,22 @@ pnodo LeerArchivoAContenidoLista(string rutaArchivo) { // Lee un archivo de text
     while (i < n) { // Recorre la cadena separando numeros de varios digitos u operadores
         char c = expresionCompleta[i]; //obtiene el caracter actual
 
-        if (isspace(c)) { // Si es un espacio, se ignora y avanza, isspace sale de la libreria cctype
+        if (EsEspacio(c)) { // Si es un espacio, se ignora y avanza, isspace sale de la libreria cctype
             i++;
             continue;
         }
 
-        if (isdigit(c)) { // Si encuentra un digito, agrupa los continuos para formar el numero, isdigit tmb esta en cctype
+        if (EsDigito(c)) { // Si encuentra un digito, agrupa los continuos para formar el numero, isdigit tmb esta en cctype
             string numero = "";
-            while (i < n && isdigit(expresionCompleta[i])) { 
+            while (i < n && EsDigito(expresionCompleta[i])) { 
                 numero += expresionCompleta[i]; //agrega el digito al numero
                 i++;
             }
-            listaExpresion.InsertarFinal(numero); // Agrega el numero completo a la lista
+            listaExpresion->InsertarFinal(numero); // Agrega el numero completo a la lista
         } 
         else if (EsOperador(c)) { // Si es un operador, lo agrega a la lista
             string op(1, c);//convierte el caracter en string
-            listaExpresion.InsertarFinal(op); // agrega el operador a la lista
+            listaExpresion->InsertarFinal(op); // agrega el operador a la lista
             i++;
         } 
         else {
@@ -153,5 +234,5 @@ pnodo LeerArchivoAContenidoLista(string rutaArchivo) { // Lee un archivo de text
         }
     }
 
-    return listaExpresion.ObtenerPrimero(); // Retorna el puntero al inicio de la lista
+    return listaExpresion->ObtenerPrimero(); // Retorna el puntero al inicio de la lista
 }
