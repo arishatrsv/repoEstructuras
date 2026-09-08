@@ -422,8 +422,8 @@ double AplicarOperador(double num1, double num2, string operador) { //Aplica la 
 		}
 		return num1 / num2;
 	}
-	if (operador == "^") {
-		double resultado = 1;
+	else if (operador == "^") {
+		resultado = 1;
 		for (int i = 0; i < (int)num2; i++) {
 			resultado *= num1; // Eleva el numero a la potencia indicada
 		}
