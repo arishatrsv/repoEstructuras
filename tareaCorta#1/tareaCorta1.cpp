@@ -194,7 +194,7 @@ public:
         tope = new nodo(valor, tope); //El nuevo nodo apunta al tope actual y pasa a ser el nuevo tope
     }
 
-	String Desapilar() { // Saca y retorna el elemento que esta en el tope
+	string Desapilar() { // Saca y retorna el elemento que esta en el tope
 		if (EstaVacia()) {
 			cout << "Pila vacia.\n";
 			return "";
@@ -206,7 +206,7 @@ public:
 		return valor; 
 	}
 
-	String VerTope() { // Retorna el valor del tope sin eliminarlo
+	string VerTope() { // Retorna el valor del tope sin eliminarlo
 		if (EstaVacia()) return "";
 		return tope->valor;
 	}
@@ -319,7 +319,7 @@ lista* InfijoAPostfijo(pnodo inicioInfijo){ // Convierte la lista infija en una 
 				pilaOperadores.Desapilar(); //Se descarta el "(" que quedo en el tope
 			}   
         }
-        else if (EsOperadorToken(valor)) { // si es un operador (+, -, *, /, ^)
+        else if (RevisarOperadorValor(string valor)) { // si es un operador (+, -, *, /, ^)
             // mientras el tope tenga prioridad (dentro) mayor o igual a la
             // prioridad (fuera) del que esta entrando, se saca al resultado
             while (!pilaOperadores.EstaVacia() &&
@@ -366,7 +366,7 @@ double StringADouble(string texto) { // Convierte el numero de la expresion a do
 }
 
 string DoubleAString(double numero) {// Convierte un double (resultado de una operacion) a string
-    string resultado = "" // aqui se va armando el texto final
+    string resultado = ""; // aqui se va armando el texto final
     if (numero < 0) { //Si el numero es negativo, se guarda el signo aparte
         resultado += "-"; 
 		numero = -numero; // se hace positivo para procesarlo
@@ -382,7 +382,7 @@ string DoubleAString(double numero) {// Convierte un double (resultado de una op
         int valorRestante = parteEntera; // copia que se va reduciendo mientras se sacan digitos
         while (valorRestante > 0) {
             char digitoActual = '0' + (valorRestante % 10); //Ultimo digito del numero restante
-            textoParteEntera = digitoActual + textoParteEntera; //Se agrega al inicio del texto
+            parteEnteraStr = digitoActual + parteEnteraStr; //Se agrega al inicio del texto
             valorRestante /= 10; // se quita el ultimo digito ya procesado
 		}
 	}
@@ -411,11 +411,11 @@ double EvaluarPostfijo(pnodo inicioPostfijo) { //Evalua una expresion en postfij
             pilaNumeros.Apilar(valor);
         }
         else if (RevisarOperadorValor(valor)) { //Si es un operador, se opera con los dos numeros del tope
-            string num2 = pilaNumeros.Desapilar(); // primer tope sacado = num2
-            string num1 = pilaNumeros.Desapilar(); //segundo tope sacado = num 1
+            string strNum2 = pilaNumeros.Desapilar(); // primer tope sacado = num2
+            string strNum1 = pilaNumeros.Desapilar(); //segundo tope sacado = num 1
 
-            double num1 = StringADouble(num1); //convierte el texto a numero real
-            double num2 = StringADouble(num2); //convierte el texto a numero real
+            double num1 = StringADouble(strNum1); //convierte el texto a numero real
+            double num2 = StringADouble(strNum2); //convierte el texto a numero real
             double resultado = AplicarOperador(num1, num2, valor); //Aplica la operacion correspondiente
 
             pilaNumeros.Apilar(DoubleAString(resultado)); //Se apila el resultado como texto
