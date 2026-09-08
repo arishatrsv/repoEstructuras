@@ -24,6 +24,8 @@ private:
     nodo* siguiente;  // guarda direccion del siguiente nodo
     friend class lista; // permite que la clase lista acceda a los miembros privados
     friend class Bicola; // permite que acceda a los miembros privados
+	friend class Pila; // permite que acceda a los miembros privados
+	friend lista* InfijoAPostfijo(pnodo inicioInfijo); // permite que acceda a los miembros privados
 };
 
 typedef nodo* pnodo; // Alias para puntero a nodo (pnodo = nodo*)
@@ -177,6 +179,39 @@ public:
     }
 };
 
+class Pila {
+private:
+    pnodo tope;
+
+public:
+    Pila() { tope = NULL; } // Constructor: la pila inicia vacia, sin nodos
+
+    bool EstaVacia() {
+        return tope == NULL; //Revisa si la pila está vacía
+    }
+
+    void Apilar(string valor){// Agrega un nuevo elemento al tope de la pila
+        tope = new nodo(valor, tope); //El nuevo nodo apunta al tope actual y pasa a ser el nuevo tope
+    }
+
+	String Desapilar() { // Saca y retorna el elemento que esta en el tope
+		if (EstaVacia()) {
+			cout << "Pila vacia.\n";
+			return "";
+		}
+		pnodo temp = tope; // Guarda el nodo actual del tope
+		string valor = temp->valor; // Obtiene el valor del nodo antes de borrar el nodo
+		tope = temp->siguiente; // El tope pasa a ser el siguiente nodo
+		delete temp; // Libera la memoria del nodo eliminado
+		return valor; 
+	}
+
+	String VerTope() { // Retorna el valor del tope sin eliminarlo
+		if (EstaVacia()) return "";
+		return tope->valor;
+	}
+};
+
 bool EsDigito(char c) {
     return (c >= '0' && c <= '9');
 }
@@ -188,6 +223,34 @@ bool EsEspacio(char c) { // Comprueba manualmente espacios en blanco o saltos de
 bool EsOperador(char c) { // Valida si un caracter corresponde a un operador matematico
     return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')');
 } // || es or, retorna true o false. 
+
+int PrioridadDentroPila(string operador) { // Asigna prioridad a los operadores dentro de la pila);
+    if (operador == "^") return 3;  //Exponente
+    if (operador == "*" || operador == "/") return 2;//Multiplicación y división
+    if (operador == "+" || operador == "-") return 1; //Suma y resta
+    if (operador == "(")  return 0;// parentesis abierto, prioridad minima dentro
+    return -1; // no deberia ocurrir con un operador valido
+}
+
+int PrioridadFueraPila(string operador) { // Prioridad de un operador leido desde la expresion (entrando)
+    if (operador == "^") return 4;              // el exponente entrante siempre gana sobre el que esta en la pila
+    if (operador == "*" || operador == "/") return 2;
+    if (operador == "+" || operador == "-") return 1;
+    if (operador == "(") return 5;              // parentesis abierto entrante siempre se apila
+    return -1;
+}
+
+bool RevisarOperadorValor(string valor){// Revisa si el valor del nodo es un operador o parentesis
+    return (valor == "+" || valor == "-" || valor == "*" ||
+		    valor == "/" || valor == "^" || valor == "(" || valor == ")");
+}
+
+bool RevisarNumeroValor(string valor) {// Revisa si el valor del nodo es un numero, viendo su primer caracter
+    if (valor == "") {
+        return false;
+    }
+	return EsDigito(valor[0]);
+}
 
 pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte su contenido en una lista enlazada simple
     ifstream archivo(rutaArchivo.c_str()); // abre el archivo para lectura. c_str concierte string en un arreglo de caracteres
@@ -223,16 +286,53 @@ pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte s
                 i++;
             }
             listaExpresion->InsertarFinal(numero); // Agrega el numero completo a la lista
-        } 
-        else if (EsOperador(c)) { // Si es un operador, lo agrega a la lista
+        }else if (EsOperador(c)) { // Si es un operador, lo agrega a la lista
             string op(1, c);//convierte el caracter en string
             listaExpresion->InsertarFinal(op); // agrega el operador a la lista
             i++;
-        } 
-        else {
+        }else {
             i++;
         }
     }
-
     return listaExpresion->ObtenerPrimero(); // Retorna el puntero al inicio de la lista
+}
+
+lista* InfijoAPostfijo(pnodo inicioInfijo){ // Convierte la lista infija en una nueva lista postfija
+    lista* postfijo = new lista(); // lista nueva donde se va guardando el resultado
+    Pila pilaOperadores; //pila para guardar operadores temporalmente
+    pnodo actual = inicioInfijo; //puntero que recorre la lista
+
+    while(actual != NULL){ //Recorre la lista infija nodo por nodo
+        string valor = actual->valor; //Obtiene el contenido del nodo actual
+
+        if (RevisarNumeroValor(valor)) { //Si es un numero, se agrega directamente a la lista postfija
+            postfijo->InsertarFinal(valor);
+        }
+        else if (valor == "(") {
+			pilaOperadores.Apilar(valor); //Si abre parentesis, se apila sin comparar
+        }
+        else if (valor == ")") { //Si cierra parentesis, se desapila todo hasta el "("
+            while (!pilaOperadores.EstaVacia() && pilaOperadores.VerTope() != "(") {
+                postfijo->InsertarFinal(pilaOperadores.Desapilar()); // Se quitan operadores hasta encontrar el parentesis abierto))
+            }
+            if (!pilaOperadores.EstaVacia()) {
+				pilaOperadores.Desapilar(); //Se descarta el "(" que quedo en el tope
+			}   
+        }
+        else if (EsOperadorToken(valor)) { // si es un operador (+, -, *, /, ^)
+            // mientras el tope tenga prioridad (dentro) mayor o igual a la
+            // prioridad (fuera) del que esta entrando, se saca al resultado
+            while (!pilaOperadores.EstaVacia() &&
+                pilaOperadores.VerTope() != "(" &&
+                PrioridadDentroPila(pilaOperadores.VerTope()) >= PrioridadFueraPila(valor)) {
+                postfijo->InsertarFinal(pilaOperadores.Desapilar());
+            }
+            pilaOperadores.Apilar(valor); // finalmente se apila el operador entrante
+        }
+		actual = actual->siguiente; // Avanza al siguiente nodo de la lista infija
+    }
+    while (!pilaOperadores.EstaVacia()) { //Al terminar, se vacia el resto de la pila
+		postfijo->InsertarFinal(pilaOperadores.Desapilar()); 
+    }
+    return postfijo; //Retorna la lista en postfijo
 }
