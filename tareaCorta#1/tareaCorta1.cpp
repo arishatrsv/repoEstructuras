@@ -336,3 +336,92 @@ lista* InfijoAPostfijo(pnodo inicioInfijo){ // Convierte la lista infija en una 
     }
     return postfijo; //Retorna la lista en postfijo
 }
+
+double StringADouble(string texto) { // Convierte el numero de la expresion a double
+    double resultado = 0;       // aqui se va acumulando el numero
+    double signo = 1;           // 1 si es positivo, -1 si es negativo
+    int indice = 0;             // posicion actual dentro del texto
+    int longitud = texto.length(); // cantidad total de caracteres del texto
+
+    if (longitud > 0 && texto[0] == '-') { // revisa si el numero viene negativo
+        signo = -1;
+        indice = 1; // se salta el signo, para no leerlo como digito
+    }
+
+    while (indice < longitud && EsDigito(texto[indice])) { // arma la parte entera del numero
+        resultado = resultado * 10 + (texto[indice] - '0');  // desplaza lo acumulado y suma el nuevo digito
+        indice++;
+    }
+
+    if (indice < longitud && texto[indice] == '.') { //Si despues de la parte entera hay un punto, hay decimales
+        indice++; //se salta el punto decimal
+        double factorDecimal = 0.1; // factor para la parte decimal
+        while (indice < longitud && EsDigito(texto[indice])) { // arma la parte decimal del numero
+            resultado += (texto[indice] - '0') * factorDecimal; // suma el digito multiplicado por su factor decimal
+            factorDecimal *= 0.1; // disminuye el factor para el siguiente digito
+            indice++;
+        }
+    }
+    return resultado * signo; // retorna el numero final con su signo correspondiente
+}
+
+string DoubleAString(double numero) {// Convierte un double (resultado de una operacion) a string
+    string resultado = "" // aqui se va armando el texto final
+    if (numero < 0) { //Si el numero es negativo, se guarda el signo aparte
+        resultado += "-"; 
+		numero = -numero; // se hace positivo para procesarlo
+    }
+    int parteEntera = (int)numero; //Parte antes del punto decimal
+    double parteDecimal = numero - parteEntera; //Parte despues del punto decimal
+
+	string parteEnteraStr = ""; //Aqui se va armando la parte entera 
+    if (parteEntera == 0) {
+        parteEnteraStr = "0";// caso especial: si la parte entera es 0
+    }
+	else {
+        int valorRestante = parteEntera; // copia que se va reduciendo mientras se sacan digitos
+        while (valorRestante > 0) {
+            char digitoActual = '0' + (valorRestante % 10); //Ultimo digito del numero restante
+            textoParteEntera = digitoActual + textoParteEntera; //Se agrega al inicio del texto
+            valorRestante /= 10; // se quita el ultimo digito ya procesado
+		}
+	}
+	resultado += parteEnteraStr; //Se agrega la parte entera al resultado final
+
+    if (parteDecimal > 0.0) { //Si la parte decimal es significativa
+        resultado += ".";
+        for (int decimal = 0; decimal < 6; decimal++) {
+			decimal *= 10; //Se desplaza un digito a la izquierda
+			int digitoActual = (int)decimal; //Se obtiene el digito actual
+			resultado += ('0' + digitoActual); //Se agrega al resultado final
+			decimal -= digitoAcctual; //Se quita el digito ya procesado
+        }
+    }
+	return resultado; //Retorna el numero convertido a string
+}
+
+double EvaluarPostfijo(pnodo inicioPostfijo) { //Evalua una expresion en postfijo y retorna el resultado
+    Pila pilaNumeros;  //pila para guardar numeros temporalmente(como texto)
+    pnodo actual = inicioPostfijo; // puntero para recorrer la lista postfija
+
+    while (actual != NULL) { //recorre toda la expresion postfija, nodo por nodo
+        string valor = actual->valor; //obtiene el contenido del nodo actual
+
+        if (RevisarNumeroValor(valor)) { //Si es numero, se apila directamente como texto
+            pilaNumeros.Apilar(valor);
+        }
+        else if (RevisarOperadorValor(valor)) { //Si es un operador, se opera con los dos numeros del tope
+            string num2 = pilaNumeros.Desapilar(); // primer tope sacado = num2
+            string num1 = pilaNumeros.Desapilar(); //segundo tope sacado = num 1
+
+            double num1 = StringADouble(num1); //convierte el texto a numero real
+            double num2 = StringADouble(num2); //convierte el texto a numero real
+            double resultado = AplicarOperador(num1, num2, valor); //Aplica la operacion correspondiente
+
+            pilaNumeros.Apilar(DoubleAString(resultado)); //Se apila el resultado como texto
+        }
+        actual = actual->siguiente; //Avanza al siguiente nodo
+    }
+	string resultadoFinal = pilaNumeros.Desapilar(); //El resultado final queda en el tope de la pila
+	return StringADouble(resultadoFinal); //Se convierte el resultado final a numero real y se retorna
+}
