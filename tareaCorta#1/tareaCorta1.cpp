@@ -331,7 +331,7 @@ lista* InfijoAPostfijo(pnodo inicioInfijo){ // Convierte la lista infija en una 
         }
 		actual = actual->siguiente; // Avanza al siguiente nodo de la lista infija
     }
-    while (!pilaOperadores.EstaVacia()) { //Al terminar, se vacia el resto de la pila
+    while (!pilaOperadores.EstaVacia()) { //Al terminar, se vacia operadores restantes
 		postfijo->InsertarFinal(pilaOperadores.Desapilar()); 
     }
     return postfijo; //Retorna la lista en postfijo
@@ -343,7 +343,7 @@ double StringADouble(string texto) { // Convierte el numero de la expresion a do
     int indice = 0;             // posicion actual dentro del texto
     int longitud = texto.length(); // cantidad total de caracteres del texto
 
-    if (longitud > 0 && texto[0] == '-') { // revisa si el numero viene negativo
+    if (longitud > 0 && texto[0] == '-') { // revisa si el numero tiene negativo
         signo = -1;
         indice = 1; // se salta el signo, para no leerlo como digito
     }
@@ -376,7 +376,7 @@ string DoubleAString(double numero) {// Convierte un double (resultado de una op
 
 	string parteEnteraStr = ""; //Aqui se va armando la parte entera 
     if (parteEntera == 0) {
-        parteEnteraStr = "0";// caso especial: si la parte entera es 0
+        parteEnteraStr = "0";// caso: si la parte entera es 0
     }
 	else {
         int valorRestante = parteEntera; // copia que se va reduciendo mientras se sacan digitos
@@ -388,16 +388,47 @@ string DoubleAString(double numero) {// Convierte un double (resultado de una op
 	}
 	resultado += parteEnteraStr; //Se agrega la parte entera al resultado final
 
-    if (parteDecimal > 0.0) { //Si la parte decimal es significativa
+    if (parteDecimal > 0.0000001) { //Si la parte decimal es significativa
         resultado += ".";
-        for (int decimal = 0; decimal < 6; decimal++) {
-			decimal *= 10; //Se desplaza un digito a la izquierda
-			int digitoActual = (int)decimal; //Se obtiene el digito actual
+        for (int contador = 0; contador < 6; contador++) {
+			parteDecimal *= 10; //Se desplaza un digito a la izquierda
+			int digitoActual = (int)parteDecimal; //Se obtiene el digito actual
 			resultado += ('0' + digitoActual); //Se agrega al resultado final
-			decimal -= digitoAcctual; //Se quita el digito ya procesado
+			parteDecimal -= digitoActual; //Se quita el digito ya procesado
+
+			if (parteDecimal < 0.0000001) { //Si la parte decimal ya no tiene digitos significativos, se detiene
+				break;
+			}
         }
     }
 	return resultado; //Retorna el numero convertido a string
+}
+
+double AplicarOperador(double num1, double num2, string operador) { //Aplica la operacion correspondiente a los dos numeros
+	double resultado = 0; //almacena el resultado de la operacion
+    if (operador == "+") {
+        return num1 + num2;
+    }
+    else if (operador == "-") {
+        return num1 - num2;
+    }
+    else if (operador == "*") {
+        return num1 * num2;
+    }
+	else if (operador == "/") {
+		if (num2 == 0) {
+			cout << "No se puede divir por cero." << endl;
+			return 0; // Retorna 0 en caso de division por cero
+		}
+		return num1 / num2;
+	}
+	if (operador == "^") {
+		double resultado = 1;
+		for (int i = 0; i < (int)num2; i++) {
+			resultado *= num1; // Eleva el numero a la potencia indicada
+		}
+	}
+    return resultado;
 }
 
 double EvaluarPostfijo(pnodo inicioPostfijo) { //Evalua una expresion en postfijo y retorna el resultado
