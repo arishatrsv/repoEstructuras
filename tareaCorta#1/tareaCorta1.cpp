@@ -194,7 +194,7 @@ public:
         tope = new nodo(valor, tope); //El nuevo nodo apunta al tope actual y pasa a ser el nuevo tope
     }
 
-	string Desapilar() { // Saca y retorna el elemento que esta en el tope
+    string Desapilar() { // Saca y retorna el elemento que esta en el tope
 		if (EstaVacia()) {
 			cout << "Pila vacia.\n";
 			return "";
@@ -206,7 +206,7 @@ public:
 		return valor; 
 	}
 
-	string VerTope() { // Retorna el valor del tope sin eliminarlo
+    string VerTope() { // Retorna el valor del tope sin eliminarlo
 		if (EstaVacia()) return "";
 		return tope->valor;
 	}
