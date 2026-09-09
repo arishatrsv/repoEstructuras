@@ -9,6 +9,10 @@ using namespace std;
 
 #define TAM 5 // Tamano estatico para la Bicola
 
+class nodo;
+class lista;
+typedef nodo* pnodo; // Alias para puntero a nodo (pnodo = nodo*)
+
 class nodo { 
 public:
     nodo(string pvalor) { // Constructor con un valor, puntero a nulo
@@ -26,9 +30,9 @@ private:
     friend class Bicola; // permite que acceda a los miembros privados
 	friend class Pila; // permite que acceda a los miembros privados
 	friend lista* InfijoAPostfijo(pnodo inicioInfijo); // permite que acceda a los miembros privados
+    friend void MostrarLista(pnodo inicio);
+    friend double EvaluarPostfijo(pnodo inicioPostfijo);
 };
-
-typedef nodo* pnodo; // Alias para puntero a nodo (pnodo = nodo*)
 
 class lista {
 public:
@@ -87,12 +91,12 @@ private:
     int cantidad;
 
 public:
-    Bicola() {
+    Bicola() { // Constructor de la bicola
         frente = 0;
-        fondo = -1;
-        cantidad = 0;
-        for (int i = 0; i < TAM; i++) {
-            datos[i] = NULL;
+        fondo = -1; // Inicializa el fondo en -1 porque la bicola esta vacia
+        cantidad = 0; // Inicializa la cantidad de elementos en 0
+        for (int i = 0; i < TAM; i++) { // Recorre todas las posiciones del arreglo
+            datos[i] = NULL; // Inicializa cada posicion del arreglo como vacia
         }
     }
 
@@ -107,13 +111,17 @@ public:
     void insertarFrente(pnodo valor) {
         if (estaLlena()) {
             cout << "Bicola llena. No se puede insertar al frente.\n";
-            return;
+            return; // Sale del metodo sin insertar
+        }
+        if (cantidad == 0) { // Verifica si es la primera insercion
+        frente = 0;
+        fondo = 0;
         }
         else {
-            frente = (frente - 1 + TAM) % TAM;
-            datos[frente] = valor;
-            cantidad++;
+            frente = (frente - 1 + TAM) % TAM; // Mueve el frente una posicion hacia atras de forma circular
         }
+            datos[frente] = valor; // Guarda el nodo en la posicion del frente
+            cantidad++;
     }
 
     void insertarFinal(pnodo valor) {
@@ -121,11 +129,15 @@ public:
             cout << "Bicola llena. No se puede insertar al final.\n";
             return;
         }
+        if (cantidad == 0) { // Verifica si es la primera insercion
+        frente = 0;
+        fondo = 0;
+    }
         else {
-            fondo = (fondo + 1) % TAM;
-            datos[fondo] = valor;
-            cantidad++;
+            fondo = (fondo + 1) % TAM; // Mueve el fondo una posicion hacia adelante de forma circular
         }
+            datos[fondo] = valor; // Guarda el nodo en la posicion del fondo
+            cantidad++;
     }
 
     pnodo eliminarFrente() {
@@ -133,26 +145,38 @@ public:
             cout << "Bicola vacia.\n";
             return NULL;
         }
-        pnodo temp = datos[frente];
-        frente = (frente + 1) % TAM;
-        cantidad--;
-        return temp;
+        pnodo temp = datos[frente]; // Guarda temporalmente el nodo del frente
+        cantidad--; // Disminuye la cantidad de elementos
+        if (cantidad == 0) { // Verifica si se elimino el ultimo elemento
+        frente = 0; // Reinicia el frente
+        fondo = -1; // Reinicia el fondo indicando que esta vacia
+        }
+        else {
+            frente = (frente + 1) % TAM; // Mueve el frente una posicion hacia adelante de forma circular
+        }
+        return temp;// Retorna el nodo que fue eliminado
     }
 
-    pnodo eliminarFinal() {
+    pnodo eliminarFinal() { // Elimina y retorna el nodo que esta en el final
         if (estaVacia()) {
             cout << "Bicola vacia.\n";
             return NULL;
         }
-        pnodo temp = datos[fondo];
-        fondo = (fondo - 1 + TAM) % TAM;
+        pnodo temp = datos[fondo]; // Guarda temporalmente el nodo del final
         cantidad--;
-        return temp;
+        if (cantidad == 0) { // Verifica si se elimino el ultimo elemento
+        frente = 0; // Reinicia el frente
+        fondo = -1; // Reinicia el fondo indicando que esta vacia
+        }
+        else {
+            fondo = (fondo - 1 + TAM) % TAM; // Mueve el fondo una posicion hacia atras de forma circular
+        }
+        return temp; // Retorna el nodo que fue eliminado
     }
 
-    pnodo obtenerPosicion(int pos) {
-        if (pos >= 0 && pos < TAM) {
-            return datos[pos];
+    pnodo obtenerPosicion(int pos) { // Obtiene el nodo almacenado en una posicion especifica
+        if (pos >= 0 && pos < TAM) { // Verifica que la posicion este dentro del arreglo
+            return datos[pos]; // Retorna el nodo de esa posicion
         }
         return NULL;
     }
@@ -164,22 +188,22 @@ public:
         }
         else {
             cout << "Contenido de la bicola:\n";
-            int i = frente;
-            for (int pos = 0; pos < cantidad; pos++) {
+            int i = frente; // Inicia el recorrido desde el frente
+            for (int pos = 0; pos < cantidad; pos++) { // Recorre todos los elementos de la bicola
                 cout << "Posicion [" << i << "]: ";
-                pnodo actual = datos[i];
-                while (actual != NULL) {
-                    cout << actual->valor << " ";
+                pnodo actual = datos[i]; // Obtiene el primer nodo de la lista almacenada
+                while (actual != NULL) { // Recorre todos los nodos de la lista
+                    cout << actual->valor << " "; // Muestra el valor del nodo actual
                     actual = actual->siguiente;
                 }
                 cout << endl;
-                i = (i + 1) % TAM;
+                i = (i + 1) % TAM; // Avanza a la siguiente posicion de forma circular
             }
         }
     }
 };
 
-class Pila {
+class Pila { // Clase que representa una pila dinamica
 private:
     pnodo tope;
 
@@ -319,7 +343,7 @@ lista* InfijoAPostfijo(pnodo inicioInfijo){ // Convierte la lista infija en una 
 				pilaOperadores.Desapilar(); //Se descarta el "(" que quedo en el tope
 			}   
         }
-        else if (RevisarOperadorValor(string valor)) { // si es un operador (+, -, *, /, ^)
+        else if (RevisarOperadorValor(valor)) { // si es un operador (+, -, *, /, ^)
             // mientras el tope tenga prioridad (dentro) mayor o igual a la
             // prioridad (fuera) del que esta entrando, se saca al resultado
             while (!pilaOperadores.EstaVacia() &&
@@ -455,4 +479,52 @@ double EvaluarPostfijo(pnodo inicioPostfijo) { //Evalua una expresion en postfij
     }
 	string resultadoFinal = pilaNumeros.Desapilar(); //El resultado final queda en el tope de la pila
 	return StringADouble(resultadoFinal); //Se convierte el resultado final a numero real y se retorna
+}
+
+void MostrarLista(pnodo inicio)
+{
+    while (inicio != NULL)
+    {
+        cout << inicio->valor << " ";
+        inicio = inicio->siguiente;
+    }
+    cout << endl;
+}
+
+int main()
+{
+    Bicola bicola;
+
+    bicola.insertarFrente(LeerArchivo("Arch1.txt"));
+    bicola.insertarFinal(LeerArchivo("Arch2.txt"));
+    bicola.insertarFrente(LeerArchivo("Arch3.txt"));
+    bicola.insertarFinal(LeerArchivo("Arch4.txt"));
+    bicola.insertarFrente(LeerArchivo("Arch5.txt"));
+
+    bicola.mostrar();
+
+    cout << "\nProcesando archivos...\n\n";
+
+    while (!bicola.estaVacia())
+    {
+        pnodo expresionOriginal = bicola.eliminarFrente();
+
+        cout << "Expresion Original: ";
+        MostrarLista(expresionOriginal);
+
+        lista* postfijo = InfijoAPostfijo(expresionOriginal);
+
+        cout << "Expresion Postfijo: ";
+        postfijo->Mostrar();
+
+        double resultado =
+            EvaluarPostfijo(postfijo->ObtenerPrimero());
+
+        cout << "Resultado: "
+            << resultado << endl;
+
+        cout << "----------------------\n";
+    }
+
+    return 0;
 }
