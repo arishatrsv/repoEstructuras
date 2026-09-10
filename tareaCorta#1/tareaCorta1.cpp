@@ -495,11 +495,11 @@ int main()
 {
     Bicola bicola;
 
-    bicola.insertarFrente(LeerArchivo("Arch1.txt"));
-    bicola.insertarFinal(LeerArchivo("Arch2.txt"));
-    bicola.insertarFrente(LeerArchivo("Arch3.txt"));
-    bicola.insertarFinal(LeerArchivo("Arch4.txt"));
-    bicola.insertarFrente(LeerArchivo("Arch5.txt"));
+    bicola.insertarFrente(LeerArchivo("ArchivosPrueba/Arch1.txt"));
+    bicola.insertarFinal(LeerArchivo("ArchivosPrueba/Arch2.txt"));
+    bicola.insertarFrente(LeerArchivo("ArchivosPrueba/Arch3.txt"));
+    bicola.insertarFinal(LeerArchivo("ArchivosPrueba/Arch4.txt"));
+    bicola.insertarFrente(LeerArchivo("ArchivosPrueba/Arch5.txt"));
 
     bicola.mostrar();
 
