@@ -217,7 +217,6 @@ public:
                 {
                     return actual; // pais encontrado
                 }
-
                 actual = actual->siguiente;
             }   
         return NULL; // pais no encontrado
@@ -227,7 +226,14 @@ public:
     {
         return buscar(codPais) != NULL; // verifica si existe el pais
     }
-    };
+
+    void mostrar(NodoPais* pais){
+        if (pais != NULL){
+            cout << "Codigo del pais: " << pais->codPais << endl;
+            cout << "Nombre: " << pais->nombre << endl;
+        }
+    }
+};
 
 class ListaCiudad // lista circulas de cuidades
 {
@@ -278,6 +284,13 @@ public:
     {
         return buscar(codPais, codCiudad) != NULL; // verifica si existe la ciudad
     }
+    void mostrar(NodoCiudad* ciudad){
+        if (ciudad != NULL){
+            cout << "Codigo del pais: " << ciudad->codPais << endl;
+            cout << "Codigo de la ciudad: " << ciudad->codCiudad << endl;
+            cout << "Nombre: " << ciudad->nombre << endl;
+        }
+    }
     
 };
 
@@ -318,6 +331,34 @@ public:
         }
     }
 
+    NodoPaciente* buscar(int idPaciente){
+        int posicion = funcionHash(idPaciente);
+        NodoPaciente* actual = tabla[posicion];
+        while (actual != NULL){
+            if (actual->idPaciente == idPaciente)
+            {
+                return actual; // paciente encontrado
+            }
+            actual = actual->siguiente;
+        }
+        return NULL; // paciente no encontrado
+    }
+    bool existe(int idPaciente)
+    {
+        return buscar(idPaciente) != NULL;
+    }
+
+    void mostrar(NodoPaciente* paciente) {
+        if (paciente != NULL) {
+            cout << "Id del paciente: " << paciente->idPaciente << endl;
+            cout << "Nombre: " << paciente->nombre << endl;
+            cout << "Fecha de nacimiento: " << paciente->fechaNacimiento << endl;
+            cout << "Telefono: " << paciente->telefono << endl;
+            cout << "Codigo de ciudad: " << paciente->codCiudad << endl;
+            cout << "Correo: " << paciente->correo << endl;
+        }
+    }
+
 };
 
 class TablaMedicos //hashing de medicos
@@ -344,14 +385,38 @@ public:
         {
             tabla[posicion] = nuevo;
         }
-        else
-        {
+        else{
             NodoMedico* actual = tabla[posicion];
             while (actual->siguiente != NULL)
             {
                 actual = actual->siguiente;
             }
             actual->siguiente = nuevo;
+        }
+    }
+
+    NodoMedico* buscar(int idMedico) {
+        int posicion = funcionHash(idMedico);
+        NodoMedico* actual = tabla[posicion]; //posicion en la tabla
+        while (actual != NULL) {
+            if (actual->idMedico == idMedico) {
+                return actual; //medico encontrado
+            }
+            actual = actual->siguiente;
+        }
+        return NULL; //medico no encontrado
+    }
+    bool existe(int idMedico){
+        return buscar(idMedico) != NULL;
+    }
+
+    void mostrar(NodoMedico* medico) {
+        if (medico != NULL) {
+            cout << "Id del medico: " << medico->idMedico << endl;
+            cout << "Nombre: " << medico->nombre << endl;
+            cout << "Telefono: " << medico->telefono << endl;
+            cout << "Correo: " << medico->correo << endl;
+            cout << "Id de especialidad: " << medico->idEspecialidad << endl;
         }
     }
 };
@@ -383,6 +448,31 @@ public:
             primero->anterior = nuevo;
         }
     }
+    NodoEspecialidad* buscar(int idEspecialidad)
+    {
+        if (primero == NULL)
+        {
+            return NULL; // lista vacia
+        }
+        NodoEspecialidad* actual = primero;
+        do{
+            if (actual->idEspecialidad == idEspecialidad){
+                return actual; // especialidad encontrada
+            }
+            actual = actual->siguiente;
+        } while (actual != primero);
+        return NULL; // especialidad no encontrada
+    }
+    bool existe(int idEspecialidad){
+        return buscar(idEspecialidad) != NULL;
+    }
+    void mostrar(NodoEspecialidad* especialidad) {
+        if (especialidad != NULL) {
+            cout << "Id de especialidad: " << especialidad->idEspecialidad << endl;
+            cout << "Nombre: " << especialidad->nombre << endl;
+            cout << "Descripcion: " << especialidad->descripcion << endl;
+        }
+    }
 };
 
 class ListaCita //lista doble de citas
@@ -410,6 +500,31 @@ public:
             ultimo->siguiente = nuevo;
             nuevo->anterior = ultimo;
             ultimo = nuevo;
+        }
+    }
+    NodoCita* buscar(int idCita) {
+        NodoCita* actual = primero;
+        while (actual != NULL) {
+            if (actual->idCita == idCita) {
+                return actual; //cita encontrada
+            }
+            actual = actual->siguiente;
+        }
+        return NULL; //cita no encontrada
+    }
+    bool existe(int idCita) {
+        return buscar(idCita) != NULL;
+    }
+    void mostrar(NodoCita* cita) {
+        if (cita != NULL) {
+            cout << "Id de la cita: " << cita->idCita << endl;
+            cout << "Id del paciente: " << cita->idPaciente << endl;
+            cout << "Id del medico: " << cita->idMedico << endl;
+            cout << "Id de especialidad: " << cita->idEspecialidad << endl;
+            cout << "Fecha: " << cita->fecha << endl;
+            cout << "Hora: " << cita->hora << endl;
+            cout << "Motivo: " << cita->motivo << endl;
+            cout << "Estado: " << cita->estado << endl;
         }
     }
 };
@@ -441,6 +556,33 @@ public:
             primero->anterior = nuevo;
         }
     }
+    NodoHabitacion* buscar(int idHabitacion) {
+        if (primero == NULL) {
+            return NULL; //lista vacia
+        }
+        NodoHabitacion* actual = primero;
+
+        do {
+            if (actual->idHabitacion == idHabitacion) {
+                return actual; //habitacion encontrada
+            }
+            actual = actual->siguiente;
+        } while (actual != primero);
+        return NULL; //habitacion no encontrada
+    }
+    bool existe(int idHabitacion) {
+        return buscar(idHabitacion) != NULL;
+    }
+
+    void mostrar(NodoHabitacion* habitacion) {
+        if (habitacion != NULL) {
+            cout << "Id de habitacion: " << habitacion->idHabitacion << endl;
+            cout << "Numero: " << habitacion->numero << endl;
+            cout << "Piso: " << habitacion->piso << endl;
+            cout << "Tipo: " << habitacion->tipo << endl;
+            cout << "Estado: " << habitacion->estado << endl;
+        }
+    }
 };
 
 class ListaHospitalizacion //lista doble de hospitalizaciones
@@ -467,6 +609,32 @@ public:
             ultimo->siguiente = nuevo;
             nuevo->anterior = ultimo;
             ultimo = nuevo;
+        }
+    }
+    NodoHospitalizacion* buscar(int idHospitalizacion)
+    {
+        NodoHospitalizacion* actual = primero;
+        while (actual != NULL) {
+            if (actual->idHospitalizacion == idHospitalizacion) {
+                return actual; // hospitalizacion encontrada
+            }
+            actual = actual->siguiente;
+        }
+        return NULL; // hospitalizacion no encontrada
+    }
+    bool existe(int idHospitalizacion){
+        return buscar(idHospitalizacion) != NULL;
+    }
+
+    void mostrar(NodoHospitalizacion* hospitalizacion) {
+        if (hospitalizacion != NULL) {
+            cout << "Id de hospitalizacion: " << hospitalizacion->idHospitalizacion << endl;
+            cout << "Id del paciente: " << hospitalizacion->idPaciente << endl;
+            cout << "Id de habitacion: " << hospitalizacion->idHabitacion << endl;
+            cout << "Id del medico: " << hospitalizacion->idMedico << endl;
+            cout << "Fecha de ingreso: " << hospitalizacion->fechaIngreso << endl;
+            cout << "Fecha de salida: " << hospitalizacion->fechaSalida << endl;
+            cout << "Motivo: " << hospitalizacion->motivo << endl;
         }
     }
 };
