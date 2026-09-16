@@ -940,6 +940,7 @@ void cargarArchivos()
     cargarHospitalizaciones();
 }
 
+//----------Parte Insertar--------
 void insertarPais()
 {
     int codigo;
@@ -1087,3 +1088,324 @@ void insertarMedico()
     tablaMedicos.insertar(id, nombre, telefono, correo, especialidad);
     cout << "Medico insertado correctamente" << endl;
 }
+
+void insertarCita(){
+    int idCita;
+    int idPaciente;
+    int idMedico;
+    int idEspecialidad;
+    string fecha;
+    string hora;
+    string motivo;
+    string estado;
+
+    cout << "Digite el Id de la cita: ";
+    cin >> idCita;
+    if (listaCitas.existe(idCita)){ // Valida que el Id de la cita no este repetido
+        cout << "La cita ya existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id del paciente: ";
+    cin >> idPaciente;
+    if (!tablaPacientes.existe(idPaciente)){ // Validar que el paciente exista
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id del medico: ";
+    cin >> idMedico;
+    if (!tablaMedicos.existe(idMedico)){ // Validar que el medico exista
+        cout << "El medico no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id de la especialidad: ";
+    cin >> idEspecialidad;
+    cin.ignore();
+    cout << "Digite la fecha: ";
+    getline(cin, fecha);
+    cout << "Digite la hora: ";
+    getline(cin, hora);
+    cout << "Digite el motivo: ";
+    getline(cin, motivo);
+    cout << "Digite el estado: ";
+    getline(cin, estado);
+
+    listaCitas.insertar(idCita,idPaciente,idMedico,idEspecialidad,fecha,hora,motivo,estado);//Se crea el nodo
+    cout << "Cita insertada correctamente." << endl;
+}
+
+void insertarHabitacion() {
+    int idHabitacion;
+    int numero;
+    int piso;
+    string tipo;
+    string estado;
+
+    cout << "Digite el Id de la habitacion: ";
+    cin >> idHabitacion;
+
+    if (listaHabitaciones.existe(idHabitacion)) { // valida que idhabitacion no este repetido
+        cout << "La habitacion ya existe." << endl;
+        return;
+    }
+    cout << "Digite el numero de la habitacion: ";
+    cin >> numero;
+    cout << "Digite el piso: ";
+    cin >> piso;
+    cin.ignore();
+    cout << "Digite el tipo de habitacion: ";
+    getline(cin, tipo);
+    cout << "Digite el estado de la habitacion: ";
+    getline(cin, estado);
+
+    listaHabitaciones.insertar(idHabitacion, numero, piso, tipo, estado);
+    cout << "Habitación insertada correctamente" << endl;
+}
+
+void insertarHospitalizacion() {
+    int idHospitalizacion;
+    int idPaciente;
+    int idHabitacion;
+    int idMedico;
+    string fechaIngreso;
+    string fechaSalida;
+    string motivo;
+
+    cout << "Digite el Id de la hospitalizacion: ";
+    cin >> idHospitalizacion;
+    if (listaHospitalizaciones.existe(idHabitacion)) { // Validar que el Id de la hospitalizacion no este repetido
+        cout << "La hospitalizacion ya existe." << endl;
+        return;
+    }
+
+    cout << "Id del Paciente: ";
+    cin >> idPaciente;
+    if (!tablaPacientes.existe(idPaciente)) { // Validar que el paciente exista
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id de la habitacion: ";
+    cin >> idHabitacion;
+    if (!listaHabitaciones.existe(idHabitacion)) { // Validar que la habitacion exista
+        cout << "La habitacion no existe." << endl;
+        return;
+
+    }
+
+    cout<< "Digite el Id del medico: ";
+    cin >> idMedico;
+    cin.ignore;
+    cout<< "Digite la fecha de ingreso: ";
+    getline(cin, fechaIngreso);
+    cout << "Digite la fecha de salida: ";
+    getline(cin, fechaSalida);
+    cout << "Digite el motivo: ";
+    getline(cin, motivo);
+
+    listaHospitalizaciones.insertar(idHospitalizacion, idPaciente, idHabitacion, idMedico, fechaIngreso, fechaSalida, motivo);
+    cout << "Hospitalización insertada correctamente." << endl;
+
+}
+
+//------------Parte Búsqueda----------------
+void buscarPais() {
+    int codPais;
+    cout << "Digite el código del pais: ";
+    cin >> codPais;
+
+    NodoPais* paisEncontrado = listaPaises.buscar(codPais);
+    if (paisEncontrado != NULL) {
+        listaPaises.mostrar(paisEncontrado);
+    }else {
+        cout << "El pais no existe." << endl;
+    }
+}
+
+void buscarCiudad() {
+    int codPais;
+    int codCiudad;
+
+    cout << "Digite el código del pais: ";
+    cin >> codPais;
+    if (!listaPaises.existe(codPais)){ // Primero validar que el pais exista
+        cout << "El pais no existe" << endl;
+        return;
+    }
+
+    cout << "Digite el codigo de la ciudad: ";
+    cin >> codCiudad;
+
+    NodoCiudad* ciudadEncontrado = listaCiudades.buscar(codPais, codCiudad); //ciudad va relacionada con pais
+    if (ciudadEncontrado != NULL) {
+        listaCiudades.mostrar(ciudadEncontrado);
+    }
+    else {
+        cout << "La ciudad no existe en ese pais." << endl;
+    }
+}
+
+void buscarPaciente() {
+    int codPais;
+    int codCiudad;
+    int idPaciente;
+
+    cout << "Digite el codigo del pais: ";
+    cin >> codPais;
+    cout << "Digite el codigo de la ciudad: ";
+    cin >> codCiudad;
+
+    if (!listaCiudades.existe(codPais, codCiudad)) { //valida que la ciudad exista
+        cout << "La ciudad no existe en ese pais." << endl;
+        return;
+    }
+
+    cout << "Digite el Id del paciente: ";
+    cin >> idPaciente;
+    NodoPaciente* pacienteEncontrado = tablaPacientes.buscar(idPaciente);
+    if (pacienteEncontrado != NULL) {
+        if (pacienteEncontrado->codPais == codPais && //Comparamos los datos guardados con los que se ingresaron
+            pacienteEncontrado->codCiudad == codCiudad) 
+        {
+            tablaPacientes.mostrar(pacienteEncontrado);
+        }
+        else {
+            cout << "El paciente no pertenece a esa ciudad." << endl;
+        }
+    }
+    else {
+        cout << "El paciente no existe." << endl;
+    }
+}
+
+void buscarMedico() {
+    int idEspecialidad;
+    int idMedico;
+
+    cout << "Digite el Id de la especialidad: ";
+    cin >> idEspecialidad;
+    if (!listaEspecialidades.existe(idEspecialidad)) { // Validar que la especialidad exista
+        cout << "La especialidad no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id del medico: ";
+    cin >> idMedico;
+    NodoMedico* medicoEncontrado = tablaMedicos.buscar(idMedico);
+    if (medicoEncontrado != NULL) {
+        if (medicoEncontrado->idEspecialidad == idEspecialidad) { // Verificar que el medico pertenezca a la especialidad indicada
+            tablaMedicos.mostrar(medicoEncontrado);
+        }
+        else {
+            cout << "El medico no pertenece a esa especialidad." << endl;
+        }
+    }
+    else {
+        cout << "El medico no existe." << endl;
+    }
+}
+
+void buscarEspecialidad() {
+    int idEspecialidad;
+
+    cout << "Id de la Especialidad: ";
+    cin >> idEspecialidad;
+    if (listaEspecialidades.existe(idEspecialidad)) {
+        NodoEspecialidad* especialidadEncontrada = listaEspecialidades.buscar(idEspecialidad);
+        listaEspecialidades.mostrar(especialidadEncontrada);
+    }else{
+        cout << "La especialidad no existe." << endl;
+    }
+}
+
+void buscarCita() {
+    int idPaciente;
+    int idMedico;
+    int idCita;
+
+    cout << "Digite el Id del paciente: ";
+    cin >> idPaciente;
+    if (!tablaPacientes.existe(idPaciente)) { // Validar que el paciente exista
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id del medico: ";
+    cin >> idMedico;
+    if (!tablaMedicos.existe(idMedico)) { // Validar que el medico exista
+        cout << "El medico no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id de la cita: ";
+    cin >> idCita;
+    NodoCita* citaEncontrada = listaCitas.buscar(idCita);
+    if (citaEncontrada != NULL) {
+        if (citaEncontrada->idPaciente == idPaciente &&
+            citaEncontrada->idMedico == idMedico) // Verificar que la cita corresponda al paciente y medico
+        {
+            listaCitas.mostrar(citaEncontrada);
+        }
+        else {
+            cout << "La cita no corresponde al paciente y medico indicados." << endl;
+        }
+    }
+    else {
+        cout << "La cita no existe." << endl;
+    }
+}
+
+void buscarHabitacion() {
+    int idHabitacion;
+
+    cout << "Id de la Habitacion: ";
+    cin >> idHabitacion;
+    if (listaHabitaciones.existe(idHabitacion)) {
+        NodoHabitacion* habitacionEncontrada = listaHabitaciones.buscar(idHabitacion);
+        listaHabitaciones.mostrar(habitacionEncontrada);
+    }
+    else {
+        cout << "La habitacion no existe." << endl;
+    }
+}
+
+void buscarHospitalizacionMenu(){
+    int idPaciente;
+    int idHabitacion;
+    int idHospitalizacion;
+
+    cout << "Digite el Id del paciente: ";
+    cin >> idPaciente;
+    if (!tablaPacientes.existe(idPaciente)){ // Validar que el paciente exista
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id de la habitacion: ";
+    cin >> idHabitacion;
+    if (!listaHabitaciones.existe(idHabitacion)){ // Validar que la habitacion exista
+        cout << "La habitacion no existe." << endl;
+        return;
+    }
+
+    cout << "Digite el Id de la hospitalizacion: ";
+    cin >> idHospitalizacion;
+    NodoHospitalizacion* hospitalizacionEncontrada = listaHospitalizaciones.buscar(idHospitalizacion);
+
+    if (hospitalizacionEncontrada != NULL){
+        if (hospitalizacionEncontrada->idPaciente == idPaciente &&    // Verificar que la hospitalizacion corresponda
+            hospitalizacionEncontrada->idHabitacion == idHabitacion)  // al paciente y habitacion indicados
+        {
+            listaHospitalizaciones.mostrar(hospitalizacionEncontrada);
+        }
+        else{
+            cout << "La hospitalizacion no corresponde al paciente y habitacion indicados." << endl;
+        }
+    }
+    else{
+        cout << "La hospitalizacion no existe." << endl;
+    }
+}
+
