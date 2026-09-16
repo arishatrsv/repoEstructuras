@@ -761,9 +761,9 @@ void cargarPacientes()
         getline(datos, fecha, ';');
         getline(datos, telefono, ';');
         getline(datos, campo, ';');
-        codCiudad = stoi(campo);
-        getline(datos, campo, ';');
         codPais = stoi(campo);
+        getline(datos, campo, ';');
+        codCiudad = stoi(campo);
         getline(datos, correo);
         if (listaCiudades.existe(codPais, codCiudad) && !tablaPacientes.existe(id)) //valida ciudad y paciente
         {
@@ -879,7 +879,7 @@ void cargarCitas()
         getline(datos, motivo, ';');
         getline(datos, campo);
         estado = stoi(campo);
-        if (tablaPacientes.existe(paciente) && tablaMedicos.existe(medico) && !listaCitas.existe(id)) //valida paciente, medico y cita
+        if (tablaPacientes.existe(paciente) && tablaMedicos.existe(medico) && !listaCitas.existe(id) && listaEspecialidades.existe(especialidad)) //valida paciente, medico y cita
         {
             listaCitas.insertar(id, paciente, medico, especialidad, fecha, hora, motivo, estado);
         }
@@ -919,7 +919,7 @@ void cargarHospitalizaciones()
         getline(datos, ingreso, ';');
         getline(datos, salida, ';');
         getline(datos, motivo);
-        if (tablaPacientes.existe(paciente) && listaHabitaciones.existe(habitacion) && !listaHospitalizaciones.existe(id)) //valida paciente, habitacion y hospitalizacion
+        if (tablaPacientes.existe(paciente) && listaHabitaciones.existe(habitacion) && tablaMedicos.existe(medico) && !listaHospitalizaciones.existe(id)) //valida paciente, habitacion y hospitalizacion
         {
             listaHospitalizaciones.insertar(id, paciente, habitacion, medico, ingreso, salida, motivo);
         }
@@ -1097,7 +1097,7 @@ void insertarCita(){
     string fecha;
     string hora;
     string motivo;
-    string estado;
+    int estado;
 
     cout << "Digite el Id de la cita: ";
     cin >> idCita;
@@ -1119,8 +1119,12 @@ void insertarCita(){
         cout << "El medico no existe." << endl;
         return;
     }
-
     cout << "Digite el Id de la especialidad: ";
+    if (!listaEspecialidades.existe(idEspecialidad))
+    {
+        cout << "La especialidad no existe." << endl;
+        return;
+    }
     cin >> idEspecialidad;
     cin.ignore();
     cout << "Digite la fecha: ";
@@ -1130,7 +1134,7 @@ void insertarCita(){
     cout << "Digite el motivo: ";
     getline(cin, motivo);
     cout << "Digite el estado: ";
-    getline(cin, estado);
+    cin>>estado;
 
     listaCitas.insertar(idCita,idPaciente,idMedico,idEspecialidad,fecha,hora,motivo,estado);//Se crea el nodo
     cout << "Cita insertada correctamente." << endl;
@@ -1140,8 +1144,8 @@ void insertarHabitacion() {
     int idHabitacion;
     int numero;
     int piso;
-    string tipo;
-    string estado;
+    int tipo;
+    int estado;
 
     cout << "Digite el Id de la habitacion: ";
     cin >> idHabitacion;
@@ -1156,9 +1160,9 @@ void insertarHabitacion() {
     cin >> piso;
     cin.ignore();
     cout << "Digite el tipo de habitacion: ";
-    getline(cin, tipo);
+    cin>>tipo;
     cout << "Digite el estado de la habitacion: ";
-    getline(cin, estado);
+    cin>>estado;
 
     listaHabitaciones.insertar(idHabitacion, numero, piso, tipo, estado);
     cout << "Habitación insertada correctamente" << endl;
@@ -1197,6 +1201,11 @@ void insertarHospitalizacion() {
 
     cout<< "Digite el Id del medico: ";
     cin >> idMedico;
+    if (!tablaMedicos.existe(idMedico))
+    {
+        cout << "El medico no existe." << endl;
+        return;
+    }
     cin.ignore();
     cout<< "Digite la fecha de ingreso: ";
     getline(cin, fechaIngreso);
@@ -1513,7 +1522,7 @@ void menuBusquedas(){
     } while (opcion != 0);
 }
 
-void menuMantenimiento(); {
+void menuMantenimiento() {
     int opcion;
     do {
         cout << "\n===== MANTENIMIENTO DE LA BASE DE DATOS =====" << endl;
@@ -1561,7 +1570,7 @@ int main() {
             cout << "Programa finalizado." << endl;
             break;
         default:
-            out << "Opcion no valida." << endl;
+            cout << "Opcion no valida." << endl;
         }
     } while (opcion != 0);
     return 0;
