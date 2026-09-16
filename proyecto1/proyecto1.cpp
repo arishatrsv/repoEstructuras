@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream> //permite separar los campos de cada linea
 
 using namespace std;
 
@@ -46,16 +47,18 @@ public:
     string nombre;
     string fechaNacimiento;
     string telefono;
+    int codPais;
     int codCiudad;
     string correo;
     NodoPaciente* siguiente;
 
-    NodoPaciente(int id, string nombrePaciente, string fecha, string tel, int ciudad, string email)
+    NodoPaciente(int id, string nombrePaciente, string fecha, string tel, int pais, int ciudad, string email)
     {
         idPaciente = id;
         nombre = nombrePaciente;
         fechaNacimiento = fecha;
         telefono = tel;
+        codPais = pais;
         codCiudad = ciudad;
         correo = email;
         siguiente = NULL;
@@ -311,10 +314,10 @@ public:
             tabla[i] = NULL;
         }
     }
-    void insertar(int id, string nombre, string fecha, string telefono, int codCiudad, string correo)
+    void insertar(int id, string nombre, string fecha, string telefono, int codPais, int codCiudad, string correo)
     {
         int posicion = funcionHash(id);
-        NodoPaciente* nuevo = new NodoPaciente(id, nombre, fecha, telefono, codCiudad, correo);
+        NodoPaciente* nuevo = new NodoPaciente(id, nombre, fecha, telefono, codPais, codCiudad, correo);
         if (tabla[posicion] == NULL)
         {
             tabla[posicion] = nuevo;
@@ -354,6 +357,7 @@ public:
             cout << "Nombre: " << paciente->nombre << endl;
             cout << "Fecha de nacimiento: " << paciente->fechaNacimiento << endl;
             cout << "Telefono: " << paciente->telefono << endl;
+            cout << "Codigo de pais: " << paciente->codPais << endl;
             cout << "Codigo de ciudad: " << paciente->codCiudad << endl;
             cout << "Correo: " << paciente->correo << endl;
         }
@@ -638,3 +642,448 @@ public:
         }
     }
 };
+//objetos globales
+ListaPais listaPaises;
+ListaCiudad listaCiudades;
+TablaPacientes tablaPacientes;
+TablaMedicos tablaMedicos;
+ListaEspecialidad listaEspecialidades;
+ListaCita listaCitas;
+ListaHabitacion listaHabitaciones;
+ListaHospitalizacion listaHospitalizaciones;
+
+void cargarPaises()
+    {
+        ifstream archivo("Paises.txt");
+        if (!archivo)
+        {
+            cout << "Error al abrir Paises.txt" << endl;
+            return;
+        }
+        string linea;
+        while (getline(archivo, linea))
+        {
+            int pos = linea.find(';'); //obtiene la posición del ';'
+            int codigo = stoi(linea.substr(0, pos)); //extrae el texto antes del ';', lo convierte a entero
+            string nombre = linea.substr(pos + 1); //extrae el texto despues del ';'
+            if (!listaPaises.existe(codigo)) //evita repetidos
+            {
+                listaPaises.insertar(codigo, nombre);
+            }
+        }
+        archivo.close();
+        cout << "Paises cargados correctamente" << endl;
+    } 
+
+void cargarCiudades()
+{
+    ifstream archivo("Ciudades.txt");
+    if (!archivo)
+    {
+        cout << "Error al abrir Ciudades.txt" << endl;
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea))
+    {
+        stringstream datos(linea);
+        string campo;
+        int codPais;
+        int codCiudad;
+        string nombre;
+        getline(datos, campo, ';');
+        codPais = stoi(campo);
+        getline(datos, campo, ';');
+        codCiudad = stoi(campo);
+        getline(datos, nombre);
+
+        if (listaPaises.existe(codPais) && !listaCiudades.existe(codPais, codCiudad)) //valida pais y ciudad
+        {
+            listaCiudades.insertar(codPais, codCiudad, nombre);
+        }
+    }
+    archivo.close();
+    cout << "Ciudades cargadas correctamente" << endl;
+}
+
+void cargarEspecialidades()
+{
+    ifstream archivo("Especialidades.txt");
+    if (!archivo)
+    {
+        cout << "Error al abrir Especialidades.txt" << endl;
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea))
+    {
+        stringstream datos(linea);
+        string campo;
+        int id;
+        string nombre;
+        string descripcion;
+        getline(datos, campo, ';');
+        id = stoi(campo);
+        getline(datos, nombre, ';');
+        getline(datos, descripcion);
+        if (!listaEspecialidades.existe(id)) //evita especialidades repetidas
+        {
+            listaEspecialidades.insertar(id, nombre, descripcion);
+        }
+    }
+    archivo.close();
+    cout << "Especialidades cargadas correctamente" << endl;
+}
+
+void cargarPacientes()
+{
+    ifstream archivo("Pacientes.txt");
+    if (!archivo)
+    {
+        cout << "Error al abrir Pacientes.txt" << endl;
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea))
+    {
+        stringstream datos(linea);
+        string campo;
+        int id;
+        string nombre;
+        string fecha;
+        string telefono;
+        int codPais;
+        int codCiudad;
+        string correo;
+        getline(datos, campo, ';');
+        id = stoi(campo);
+        getline(datos, nombre, ';');
+        getline(datos, fecha, ';');
+        getline(datos, telefono, ';');
+        getline(datos, campo, ';');
+        codCiudad = stoi(campo);
+        getline(datos, campo, ';');
+        codPais = stoi(campo);
+        getline(datos, correo);
+        if (listaCiudades.existe(codPais, codCiudad) && !tablaPacientes.existe(id)) //valida ciudad y paciente
+        {
+            tablaPacientes.insertar(id, nombre, fecha, telefono, codPais, codCiudad, correo);
+        }
+    }
+    archivo.close();
+    cout << "Pacientes cargados correctamente" << endl;
+}
+
+void cargarMedicos()
+{
+    ifstream archivo("Medicos.txt");
+    if (!archivo)
+    {
+        cout << "Error al abrir Medicos.txt" << endl;
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea))
+    {
+        stringstream datos(linea);
+        string campo;
+        int id;
+        string nombre;
+        string telefono;
+        string correo;
+        int especialidad;
+        getline(datos, campo, ';');
+        id = stoi(campo);
+        getline(datos, nombre, ';');
+        getline(datos, telefono, ';');
+        getline(datos, correo, ';');
+        getline(datos, campo);
+        especialidad = stoi(campo);
+        if (listaEspecialidades.existe(especialidad) && !tablaMedicos.existe(id)) //valida especialidad y medico
+        {
+            tablaMedicos.insertar(id, nombre, telefono, correo, especialidad);
+        }
+    }
+    archivo.close();
+    cout << "Medicos cargados correctamente" << endl;
+}
+
+void cargarHabitaciones()
+{
+    ifstream archivo("Habitaciones.txt");
+    if (!archivo)
+    {
+        cout << "Error al abrir Habitaciones.txt" << endl;
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea))
+    {
+        stringstream datos(linea);
+        string campo;
+        int id;
+        int numero;
+        int piso;
+        int tipo;
+        int estado;
+        getline(datos, campo, ';');
+        id = stoi(campo);
+        getline(datos, campo, ';');
+        numero = stoi(campo);
+        getline(datos, campo, ';');
+        piso = stoi(campo);
+        getline(datos, campo, ';');
+        tipo = stoi(campo);
+        getline(datos, campo);
+        estado = stoi(campo);
+        if (!listaHabitaciones.existe(id)) //evita habitaciones repetidas
+        {
+            listaHabitaciones.insertar(id, numero, piso, tipo, estado);
+        }
+    }
+    archivo.close();
+    cout << "Habitaciones cargadas correctamente" << endl;
+}
+
+void cargarCitas()
+{
+    ifstream archivo("Citas.txt");
+    if (!archivo)
+    {
+        cout << "Error al abrir Citas.txt" << endl;
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea))
+    {
+        stringstream datos(linea);
+        string campo;
+        int id;
+        int paciente;
+        int medico;
+        int especialidad;
+        string fecha;
+        string hora;
+        string motivo;
+        int estado;
+        getline(datos, campo, ';');
+        id = stoi(campo);
+        getline(datos, campo, ';');
+        paciente = stoi(campo);
+        getline(datos, campo, ';');
+        medico = stoi(campo);
+        getline(datos, campo, ';');
+        especialidad = stoi(campo);
+        getline(datos, fecha, ';');
+        getline(datos, hora, ';');
+        getline(datos, motivo, ';');
+        getline(datos, campo);
+        estado = stoi(campo);
+        if (tablaPacientes.existe(paciente) && tablaMedicos.existe(medico) && !listaCitas.existe(id)) //valida paciente, medico y cita
+        {
+            listaCitas.insertar(id, paciente, medico, especialidad, fecha, hora, motivo, estado);
+        }
+    }
+    archivo.close();
+    cout << "Citas cargadas correctamente" << endl;
+}
+
+void cargarHospitalizaciones()
+{
+    ifstream archivo("Hospitalizaciones.txt");
+    if (!archivo)
+    {
+        cout << "Error al abrir Hospitalizaciones.txt" << endl;
+        return;
+    }
+    string linea;
+    while (getline(archivo, linea))
+    {
+        stringstream datos(linea);
+        string campo;
+        int id;
+        int paciente;
+        int habitacion;
+        int medico;
+        string ingreso;
+        string salida;
+        string motivo;
+        getline(datos, campo, ';');
+        id = stoi(campo);
+        getline(datos, campo, ';');
+        paciente = stoi(campo);
+        getline(datos, campo, ';');
+        habitacion = stoi(campo);
+        getline(datos, campo, ';');
+        medico = stoi(campo);
+        getline(datos, ingreso, ';');
+        getline(datos, salida, ';');
+        getline(datos, motivo);
+        if (tablaPacientes.existe(paciente) && listaHabitaciones.existe(habitacion) && !listaHospitalizaciones.existe(id)) //valida paciente, habitacion y hospitalizacion
+        {
+            listaHospitalizaciones.insertar(id, paciente, habitacion, medico, ingreso, salida, motivo);
+        }
+    }
+    archivo.close();
+    cout << "Hospitalizaciones cargadas correctamente" << endl;
+}
+
+void cargarArchivos()
+{
+    cargarPaises();
+    cargarCiudades();
+    cargarEspecialidades();
+    cargarPacientes();
+    cargarMedicos();
+    cargarHabitaciones();
+    cargarCitas();
+    cargarHospitalizaciones();
+}
+
+void insertarPais()
+{
+    int codigo;
+    string nombre;
+    cout << "Codigo del pais: ";
+    cin >> codigo; //pedimos datos
+    cin.ignore(); //ignora el enter pendiente
+    cout << "Nombre: ";
+    getline(cin, nombre); //
+    if (listaPaises.existe(codigo)) //revisamos que no este repetido
+    {
+        cout << "El pais ya existe" << endl;
+    }
+    else
+    {
+        listaPaises.insertar(codigo, nombre);
+        cout << "Pais insertado correctamente" << endl;
+    }
+}
+
+void insertarCiudad()
+{
+    int codPais;
+    int codCiudad;
+    string nombre;
+    cout << "Codigo del pais: ";
+    cin >> codPais;
+    if (!listaPaises.existe(codPais))
+    {
+        cout << "El pais no existe" << endl;
+        return;
+    }
+    cout << "Codigo de la ciudad: ";
+    cin >> codCiudad;
+    cin.ignore();
+    cout << "Nombre: ";
+    getline(cin, nombre);
+    if (listaCiudades.existe(codPais, codCiudad))
+    {
+        cout << "La ciudad ya existe" << endl;
+    }
+    else
+    {
+        listaCiudades.insertar(codPais, codCiudad, nombre);
+        cout << "Ciudad insertada correctamente" << endl;
+    }
+}
+
+void insertarEspecialidad()
+{
+    int id;
+    string nombre;
+    string descripcion;
+    cout << "Id de especialidad: ";
+    cin >> id;
+    cin.ignore();
+    cout << "Nombre: ";
+    getline(cin, nombre);
+    cout << "Descripcion: ";
+    getline(cin, descripcion);
+    if (listaEspecialidades.existe(id))
+    {
+        cout << "La especialidad ya existe" << endl;
+    }
+    else
+    {
+        listaEspecialidades.insertar(id, nombre, descripcion);
+        cout << "Especialidad insertada correctamente" << endl;
+    }
+}
+
+void insertarPaciente()
+{
+    int id;
+    string nombre;
+    string fecha;
+    string telefono;
+    int codPais;
+    int codCiudad;
+    string correo;
+    cout << "Id del paciente: ";
+    cin >> id;
+    cin.ignore();
+    if (tablaPacientes.existe(id))
+    {
+        cout << "El paciente ya existe" << endl;
+        return;
+    }
+    cout << "Nombre: ";
+    getline(cin, nombre);
+    cout << "Fecha de nacimiento: ";
+    getline(cin, fecha);
+    cout << "Telefono: ";
+    getline(cin, telefono);
+    cout << "Codigo del pais: ";
+    cin >> codPais;
+    if (!listaPaises.existe(codPais))
+    {
+        cout << "El pais no existe" << endl;
+        return;
+    }
+    cout << "Codigo de la ciudad: ";
+    cin >> codCiudad;
+    cin.ignore();
+    if (!listaCiudades.existe(codPais, codCiudad))
+    {
+        cout << "La ciudad no existe" << endl;
+        return;
+    }
+    cout << "Correo: ";
+    getline(cin, correo);
+
+    tablaPacientes.insertar(id, nombre, fecha, telefono, codPais, codCiudad, correo);
+    cout << "Paciente insertado correctamente" << endl;
+}
+
+void insertarMedico()
+{
+    int id;
+    string nombre;
+    string telefono;
+    string correo;
+    int especialidad;
+    cout << "Id del medico: ";
+    cin >> id;
+    cin.ignore();
+    if (tablaMedicos.existe(id))
+    {
+        cout << "El medico ya existe" << endl;
+        return;
+    }
+    cout << "Nombre: ";
+    getline(cin, nombre);
+    cout << "Telefono: ";
+    getline(cin, telefono);
+    cout << "Correo: ";
+    getline(cin, correo);
+    cout << "Id de especialidad: ";
+    cin >> especialidad;
+    if (!listaEspecialidades.existe(especialidad))
+    {
+        cout << "La especialidad no existe" << endl;
+        return;
+    }
+    tablaMedicos.insertar(id, nombre, telefono, correo, especialidad);
+    cout << "Medico insertado correctamente" << endl;
+}
