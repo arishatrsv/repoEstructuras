@@ -1175,7 +1175,7 @@ void insertarHospitalizacion() {
 
     cout << "Digite el Id de la hospitalizacion: ";
     cin >> idHospitalizacion;
-    if (listaHospitalizaciones.existe(idHabitacion)) { // Validar que el Id de la hospitalizacion no este repetido
+    if (listaHospitalizaciones.existe(idHospitalizacion)) { // Validar que el Id de la hospitalizacion no este repetido
         cout << "La hospitalizacion ya existe." << endl;
         return;
     }
@@ -1197,7 +1197,7 @@ void insertarHospitalizacion() {
 
     cout<< "Digite el Id del medico: ";
     cin >> idMedico;
-    cin.ignore;
+    cin.ignore();
     cout<< "Digite la fecha de ingreso: ";
     getline(cin, fechaIngreso);
     cout << "Digite la fecha de salida: ";
@@ -1407,5 +1407,163 @@ void buscarHospitalizacionMenu(){
     else{
         cout << "La hospitalizacion no existe." << endl;
     }
+}
+
+//----------Menú------------
+void menuInserciones() {
+    int opcion;
+
+    do {
+        cout << "\n===== INSERCIONES =====" << endl;
+        cout << "1. Pais" << endl;
+        cout << "2. Ciudad" << endl;
+        cout << "3. Paciente" << endl;
+        cout << "4. Medico" << endl;
+        cout << "5. Especialidad" << endl;
+        cout << "6. Cita" << endl;
+        cout << "7. Habitacion" << endl;
+        cout << "8. Hospitalizacion" << endl;
+        cout << "0. Regresar" << endl;
+        cout << "Digite una opcion: ";
+        cin >> opcion;
+
+        switch (opcion)
+        {
+        case 1:
+            insertarPais();
+            break;
+        case 2:
+            insertarCiudad();
+            break;
+        case 3:
+            insertarPaciente();
+            break;
+        case 4:
+            insertarMedico();
+            break;
+        case 5:
+            insertarEspecialidad();
+            break;
+        case 6:
+            insertarCita();
+            break;
+        case 7:
+            insertarHabitacion();
+            break;
+        case 8:
+            insertarHospitalizacion();
+            break;
+        case 0:
+            cout << "Regresando..." << endl;
+            break;
+        default:
+            cout << "Opcion no valida." << endl;
+        }
+    } while (opcion != 0);
+}
+
+void menuBusquedas(){
+    int opcion;
+    do{
+        cout << "\n===== BUSQUEDAS =====" << endl;
+        cout << "1. Pais" << endl;
+        cout << "2. Ciudad" << endl;
+        cout << "3. Paciente" << endl;
+        cout << "4. Medico" << endl;
+        cout << "5. Especialidad" << endl;
+        cout << "6. Cita" << endl;
+        cout << "7. Habitacion" << endl;
+        cout << "8. Hospitalizacion" << endl;
+        cout << "0. Regresar" << endl;
+        cout << "Digite una opcion: ";
+        cin >> opcion;
+
+        switch (opcion)
+        {
+        case 1:
+            buscarPais();
+            break;
+        case 2:
+            buscarCiudad();
+            break;
+        case 3:
+            buscarPaciente();
+            break;
+        case 4:
+            buscarMedico();
+            break;
+        case 5:
+            buscarEspecialidad();
+            break;
+        case 6:
+            buscarCita();
+            break;
+        case 7:
+            buscarHabitacion();
+            break;
+        case 8:
+            buscarHospitalizacionMenu();
+            break;
+        case 0:
+            cout << "Regresando..." << endl;
+            break;
+        default:
+            cout << "Opcion no valida." << endl;
+        }
+    } while (opcion != 0);
+}
+
+void menuMantenimiento(); {
+    int opcion;
+    do {
+        cout << "\n===== MANTENIMIENTO DE LA BASE DE DATOS =====" << endl;
+        cout << "1. Inserciones" << endl;
+        cout << "2. Busquedas" << endl;
+        cout << "0. Regresar" << endl;
+        cout << "Digite una opcion: ";
+        cin >> opcion;
+
+        switch (opcion) {
+        case 1:
+            menuInserciones();
+            break;
+        case 2:
+            menuBusquedas();
+            break;
+        case 0:
+            cout << "Regresando..." << endl;
+            break;
+        default:
+            cout << "Opcion no valida." << endl;
+        }
+    } while (opcion != 0);
+}
+
+int main() {
+    int opcion;
+    do {
+        cout << "\n========== MENU PRINCIPAL ==========" << endl;
+        cout << "1. Leer Archivos" << endl;
+        cout << "2. Mantenimiento de la Base de Datos" << endl;
+        cout << "0. Salir" << endl;
+        cout << "Digite una opcion: ";
+        cin >> opcion;
+
+        switch (opcion) 
+        {
+        case 1:
+            cargarArchivos();
+            break;
+        case 2:
+            menuMantenimiento();
+            break;
+        case 0:
+            cout << "Programa finalizado." << endl;
+            break;
+        default:
+            out << "Opcion no valida." << endl;
+        }
+    } while (opcion != 0);
+    return 0;
 }
 
