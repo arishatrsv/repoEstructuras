@@ -1120,12 +1120,12 @@ void insertarCita(){
         return;
     }
     cout << "Digite el Id de la especialidad: ";
+    cin >> idEspecialidad;
     if (!listaEspecialidades.existe(idEspecialidad))
     {
         cout << "La especialidad no existe." << endl;
         return;
     }
-    cin >> idEspecialidad;
     cin.ignore();
     cout << "Digite la fecha: ";
     getline(cin, fecha);
