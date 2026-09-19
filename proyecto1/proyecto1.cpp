@@ -652,6 +652,52 @@ ListaCita listaCitas;
 ListaHabitacion listaHabitaciones;
 ListaHospitalizacion listaHospitalizaciones;
 
+bool fechaValida(string fecha)
+{
+    if (fecha.length() != 10)
+    {
+        return false;
+    }
+    if (fecha[4] != '-' || fecha[7] != '-')
+    {
+        return false;
+    }
+    for (int i = 0; i < 10; i++)
+    {
+        if (i != 4 && i != 7 && (fecha[i] < '0' || fecha[i] > '9'))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool horaValida(string hora)
+{
+    if (hora.length() != 5)
+    {
+        return false;
+    }
+    if (hora[2] != ':')
+    {
+        return false;
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        if (i != 2 && (hora[i] < '0' || hora[i] > '9'))
+        {
+            return false;
+        }
+    }
+    int horas = stoi(hora.substr(0, 2));
+    int minutos = stoi(hora.substr(3, 2));
+    if (horas < 0 || horas > 23 || minutos < 0 || minutos > 59)
+    {
+        return false;
+    }
+    return true;
+}
+
 void cargarPaises()
     {
         ifstream archivo("Paises.txt");
@@ -765,7 +811,9 @@ void cargarPacientes()
         getline(datos, campo, ';');
         codCiudad = stoi(campo);
         getline(datos, correo);
-        if (listaCiudades.existe(codPais, codCiudad) && !tablaPacientes.existe(id)) //valida ciudad y paciente
+        if (listaCiudades.existe(codPais, codCiudad) &&
+            !tablaPacientes.existe(id) &&
+            fechaValida(fecha))
         {
             tablaPacientes.insertar(id, nombre, fecha, telefono, codPais, codCiudad, correo);
         }
@@ -919,7 +967,13 @@ void cargarHospitalizaciones()
         getline(datos, ingreso, ';');
         getline(datos, salida, ';');
         getline(datos, motivo);
-        if (tablaPacientes.existe(paciente) && listaHabitaciones.existe(habitacion) && tablaMedicos.existe(medico) && !listaHospitalizaciones.existe(id)) //valida paciente, habitacion y hospitalizacion
+        if (tablaPacientes.existe(paciente) &&
+            listaHabitaciones.existe(habitacion) &&
+            tablaMedicos.existe(medico) &&
+            !listaHospitalizaciones.existe(id) &&
+            fechaValida(ingreso) &&
+            fechaValida(salida) &&
+            salida >= ingreso)
         {
             listaHospitalizaciones.insertar(id, paciente, habitacion, medico, ingreso, salida, motivo);
         }
@@ -1033,6 +1087,11 @@ void insertarPaciente()
     getline(cin, nombre);
     cout << "Fecha de nacimiento: ";
     getline(cin, fecha);
+    if (!fechaValida(fecha))
+    {
+        cout << "La fecha no tiene un formato valido." << endl;
+        return;
+    }
     cout << "Telefono: ";
     getline(cin, telefono);
     cout << "Codigo del pais: ";
@@ -1129,8 +1188,18 @@ void insertarCita(){
     cin.ignore();
     cout << "Digite la fecha: ";
     getline(cin, fecha);
+    if (!fechaValida(fecha))
+    {
+        cout << "La fecha no tiene un formato valido." << endl;
+        return;
+    }
     cout << "Digite la hora: ";
     getline(cin, hora);
+    if (!horaValida(hora))
+    {
+        cout << "La hora no es valida." << endl;
+        return;
+    }
     cout << "Digite el motivo: ";
     getline(cin, motivo);
     cout << "Digite el estado: ";
@@ -1209,8 +1278,23 @@ void insertarHospitalizacion() {
     cin.ignore();
     cout<< "Digite la fecha de ingreso: ";
     getline(cin, fechaIngreso);
+    if (!fechaValida(fechaIngreso))
+    {
+        cout << "La fecha de ingreso no tiene un formato valido." << endl;
+        return;
+    }
     cout << "Digite la fecha de salida: ";
     getline(cin, fechaSalida);
+    if (!fechaValida(fechaSalida))
+    {
+        cout << "La fecha de salida no tiene un formato valido." << endl;
+        return;
+    }
+    if (fechaSalida < fechaIngreso)
+    {
+        cout << "La fecha de salida no puede ser anterior a la fecha de ingreso." << endl;
+        return;
+    }
     cout << "Digite el motivo: ";
     getline(cin, motivo);
 
@@ -1418,6 +1502,241 @@ void buscarHospitalizacionMenu(){
     }
 }
 
+void modificarPais()
+{
+    int codPais;
+    string nuevoNombre;
+    cout << "Digite el codigo del pais: ";
+    cin >> codPais;
+    cin.ignore();
+    NodoPais* pais = listaPaises.buscar(codPais);
+    if (pais == NULL)
+    {
+        cout << "El pais no existe." << endl;
+        return;
+    }
+    cout << "Nuevo nombre: ";
+    getline(cin, nuevoNombre);
+    pais->nombre = nuevoNombre; //actualiza el nombre
+    cout << "Pais modificado correctamente." << endl;
+}
+
+void modificarCiudad()
+{
+    int codPais;
+    int codCiudad;
+    string nuevoNombre;
+    cout << "Codigo del pais: ";
+    cin >> codPais;
+    if (!listaPaises.existe(codPais))
+    {
+        cout << "El pais no existe." << endl;
+        return;
+    }
+    cout << "Codigo de la ciudad: ";
+    cin >> codCiudad;
+    NodoCiudad* ciudad = listaCiudades.buscar(codPais, codCiudad);
+
+    if (ciudad == NULL)
+    {
+        cout << "La ciudad no existe." << endl;
+        return;
+    }
+    cin.ignore();
+    cout << "Nuevo nombre de la ciudad: ";
+    getline(cin, nuevoNombre);
+    ciudad->nombre = nuevoNombre; //actualiza nombre
+    cout << "Ciudad modificada correctamente." << endl;
+}
+
+void modificarPaciente()
+{
+    int codPais;
+    int codCiudad;
+    int idPaciente;
+    string telefono;
+    string correo;
+    cout << "Codigo del pais: ";
+    cin >> codPais;
+    cout << "Codigo de la ciudad: ";
+    cin >> codCiudad;
+    if (!listaCiudades.existe(codPais, codCiudad))
+    {
+        cout << "La ciudad no existe." << endl;
+        return;
+    }
+    cout << "Id del paciente: ";
+    cin >> idPaciente;
+    NodoPaciente* paciente = tablaPacientes.buscar(idPaciente);
+    if (paciente == NULL)
+    {
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+    if (paciente->codPais != codPais || paciente->codCiudad != codCiudad)
+    {
+        cout << "El paciente no pertenece a esa ciudad." << endl;
+        return;
+    }
+    cin.ignore();
+    cout << "Paciente modificado correctamente." << endl;
+}
+
+void modificarMedico()
+{
+    int idEspecialidad;
+    int idMedico;
+    string telefono;
+    string correo;
+    cout << "Id de especialidad: ";
+    cin >> idEspecialidad;
+    if (!listaEspecialidades.existe(idEspecialidad))
+    {
+        cout << "La especialidad no existe." << endl;
+        return;
+    }
+    cout << "Id del medico: ";
+    cin >> idMedico;
+    NodoMedico* medico = tablaMedicos.buscar(idMedico);
+    if (medico == NULL)
+    {
+        cout << "El medico no existe." << endl;
+        return;
+    }
+    if (medico->idEspecialidad != idEspecialidad)
+    {
+        cout << "El medico no pertenece a esa especialidad." << endl;
+        return;
+    }
+    cin.ignore();
+    cout << "Nuevo telefono: ";
+    getline(cin, telefono);
+    cout << "Nuevo correo: ";
+    getline(cin, correo);
+    medico->telefono = telefono; //actualiza telefono
+    medico->correo = correo; //actualiza correo
+    cout << "Medico modificado correctamente." << endl;
+}
+void modificarEspecialidad()
+{
+    int idEspecialidad;
+    string descripcion;
+    cout << "Id de especialidad: ";
+    cin >> idEspecialidad;
+    cin.ignore();
+    NodoEspecialidad* especialidad = listaEspecialidades.buscar(idEspecialidad);
+    if (especialidad == NULL)
+    {
+        cout << "La especialidad no existe." << endl;
+        return;
+    }
+    cout << "Nueva descripcion: ";
+    getline(cin, descripcion);
+    especialidad->descripcion = descripcion; //actualiza descripcion
+    cout << "Especialidad modificada correctamente." << endl;
+}
+
+void modificarCita()
+{
+    int idPaciente;
+    int idMedico;
+    int idCita;
+    string motivo;
+    int estado;
+    cout << "Id del paciente: ";
+    cin >> idPaciente;
+    if (!tablaPacientes.existe(idPaciente))
+    {
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+    cout << "Id del medico: ";
+    cin >> idMedico;
+    if (!tablaMedicos.existe(idMedico))
+    {
+        cout << "El medico no existe." << endl;
+        return;
+    }
+    cout << "Id de la cita: ";
+    cin >> idCita;
+    NodoCita* cita = listaCitas.buscar(idCita);
+    if (cita == NULL)
+    {
+        cout << "La cita no existe." << endl;
+        return;
+    }
+    if (cita->idPaciente != idPaciente || cita->idMedico != idMedico)
+    {
+        cout << "Los datos no coinciden." << endl;
+        return;
+    }
+    cin.ignore();
+    cout << "Nuevo motivo: ";
+    getline(cin, motivo);
+    cout << "Nuevo estado: ";
+    cin >> estado;
+    cita->motivo = motivo; //actualiza motivo
+    cita->estado = estado; //actualiza estado
+    cout << "Cita modificada correctamente." << endl;
+}
+void modificarHabitacion()
+{
+    int idHabitacion;
+    int estado;
+    cout << "Id de la habitacion: ";
+    cin >> idHabitacion;
+    NodoHabitacion* habitacion = listaHabitaciones.buscar(idHabitacion);
+    if (habitacion == NULL)
+    {
+        cout << "La habitacion no existe." << endl;
+        return;
+    }
+    cout << "Nuevo estado: ";
+    cin >> estado;
+    habitacion->estado = estado; //actualiza estado
+    cout << "Habitacion modificada correctamente." << endl;
+}
+
+void modificarHospitalizacion()
+{
+    int idPaciente;
+    int idHabitacion;
+    int idHospitalizacion;
+    string motivo;
+    cout << "Id del paciente: ";
+    cin >> idPaciente;
+    if (!tablaPacientes.existe(idPaciente))
+    {
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+    cout << "Id de la habitacion: ";
+    cin >> idHabitacion;
+    if (!listaHabitaciones.existe(idHabitacion))
+    {
+        cout << "La habitacion no existe." << endl;
+        return;
+    }
+    cout << "Id de la hospitalizacion: ";
+    cin >> idHospitalizacion;
+    NodoHospitalizacion* hospitalizacion = listaHospitalizaciones.buscar(idHospitalizacion);
+    if (hospitalizacion == NULL)
+    {
+        cout << "La hospitalizacion no existe." << endl;
+        return;
+    }
+    if (hospitalizacion->idPaciente != idPaciente || hospitalizacion->idHabitacion != idHabitacion)
+    {
+        cout << "Los datos no coinciden." << endl;
+        return;
+    }
+    cin.ignore();
+    cout << "Nuevo motivo: ";
+    getline(cin, motivo);
+    hospitalizacion->motivo = motivo; //actualiza motivo
+    cout << "Hospitalizacion modificada correctamente." << endl;
+}
+
 //----------Menú------------
 void menuInserciones() {
     int opcion;
@@ -1522,12 +1841,65 @@ void menuBusquedas(){
     } while (opcion != 0);
 }
 
+void menuModificaciones()
+{
+    int opcion;
+    do
+    {
+        cout << "\n===== MODIFICACIONES =====" << endl;
+        cout << "1. Pais" << endl;
+        cout << "2. Ciudad" << endl;
+        cout << "3. Paciente" << endl;
+        cout << "4. Medico" << endl;
+        cout << "5. Especialidad" << endl;
+        cout << "6. Cita" << endl;
+        cout << "7. Habitacion" << endl;
+        cout << "8. Hospitalizacion" << endl;
+        cout << "0. Regresar" << endl;
+        cout << "Digite una opcion: ";
+        cin >> opcion;
+        switch (opcion)
+        {
+        case 1:
+            modificarPais();
+            break;
+        case 2:
+            modificarCiudad();
+            break;
+        case 3:
+            modificarPaciente();
+            break;
+        case 4:
+            modificarMedico();
+            break;
+        case 5:
+            modificarEspecialidad();
+            break;
+        case 6:
+            modificarCita();
+            break;
+        case 7:
+            modificarHabitacion();
+            break;
+        case 8:
+            modificarHospitalizacion();
+            break;
+        case 0:
+            cout << "Regresando..." << endl;
+            break;
+        default:
+            cout << "Opcion no valida." << endl;
+        }
+    } while (opcion != 0);
+}
+
 void menuMantenimiento() {
     int opcion;
     do {
         cout << "\n===== MANTENIMIENTO DE LA BASE DE DATOS =====" << endl;
         cout << "1. Inserciones" << endl;
         cout << "2. Busquedas" << endl;
+        cout << "3. Modificaciones" << endl;
         cout << "0. Regresar" << endl;
         cout << "Digite una opcion: ";
         cin >> opcion;
@@ -1538,6 +1910,9 @@ void menuMantenimiento() {
             break;
         case 2:
             menuBusquedas();
+            break;
+        case 3:
+            menuModificaciones();
             break;
         case 0:
             cout << "Regresando..." << endl;
