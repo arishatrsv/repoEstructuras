@@ -1,0 +1,4 @@
+﻿  tareaCorta1.cpp
+\tareaCorta1.cpp(1,1): error C1083: No se puede abrir el archivo origen: 'tareaCorta1.cpp': No such file or directory
+  (compilando archivo de origen "/tareaCorta1.cpp")
+  
