@@ -235,7 +235,7 @@ public:
         NodoPais* anterior = nullptr;
 
         while (actual != nullptr) {
-            if (actual->codPais == pCodPais) {
+            if (actual->codPais == codPais) {
                 if (anterior == nullptr) {
                     primero = actual->siguiente;
                 }else {
@@ -259,9 +259,8 @@ public:
 
 class ListaCiudad // lista circulas de cuidades
 {
-private:
-    NodoCiudad* primero;
 public:
+    NodoCiudad* primero;
     ListaCiudad()
     {
         primero = NULL;
@@ -351,13 +350,12 @@ public:
 #define TAM_HASH 10 //hashing de pacientes
 class TablaPacientes
 {
-private:
+public:
     NodoPaciente* tabla[TAM_HASH];
     int funcionHash(int idPaciente)
     {
         return idPaciente % TAM_HASH;
     }
-public:
     TablaPacientes()
     {
         for (int i = 0; i < TAM_HASH; i++)
@@ -438,13 +436,12 @@ public:
 
 class TablaMedicos //hashing de medicos
 {
-private:
+public:
     NodoMedico* tabla[TAM_HASH];
     int funcionHash(int idMedico)
     {
         return idMedico % TAM_HASH;
     }
-public:
     TablaMedicos()
     {
         for (int i = 0; i < TAM_HASH; i++)
@@ -596,10 +593,9 @@ public:
 
 class ListaCita //lista doble de citas
 {
-private:
+public:
     NodoCita* primero;
     NodoCita* ultimo;
-public:
     ListaCita()
     {
         primero = NULL;
@@ -759,10 +755,9 @@ public:
 
 class ListaHospitalizacion //lista doble de hospitalizaciones
 {
-private:
+public:
     NodoHospitalizacion* primero;
     NodoHospitalizacion* ultimo;
-public:
     ListaHospitalizacion()
     {
         primero = NULL;
@@ -1698,6 +1693,9 @@ void buscarHospitalizacionMenu(){
     }
 }
 
+void eliminarPacientePorId(int idPaciente);
+void eliminarMedicoPorId(int idMedico);
+
 //-------Parte Eliminar------------------
 void eliminarPais() {
     int codPais;
@@ -1722,7 +1720,6 @@ void eliminarPais() {
     listaPaises.eliminar(codPais);
     cout << "Pais eliminado correctamente." << endl;
     }
-}
 
 void eliminarCiudad() {
     int codPais;
@@ -1979,8 +1976,8 @@ void modificarCiudad()
     }
 
     cout << "Nuevo nombre de la ciudad: ";
-    getline(cin >> nombre);
-    ciudad->nombre = nombre; //actualiza nombre
+    cin.ignore();
+    getline(cin, nombre);    ciudad->nombre = nombre; //actualiza nombre
     cout << "Ciudad modificada correctamente." << endl;
 }
 
