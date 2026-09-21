@@ -230,6 +230,25 @@ public:
         return buscar(codPais) != NULL; // verifica si existe el pais
     }
 
+    void eliminar(int codPais) {
+        NodoPais* actual = primero;
+        NodoPais* anterior = nullptr;
+
+        while (actual != nullptr) {
+            if (actual->codPais == pCodPais) {
+                if (anterior == nullptr) {
+                    primero = actual->siguiente;
+                }else {
+                    anterior->siguiente = actual->siguiente;
+                }
+                delete actual;
+                return;
+            }
+            anterior = actual;
+            actual = actual->siguiente;
+        }
+    }
+
     void mostrar(NodoPais* pais){
         if (pais != NULL){
             cout << "Codigo del pais: " << pais->codPais << endl;
@@ -287,6 +306,38 @@ public:
     {
         return buscar(codPais, codCiudad) != NULL; // verifica si existe la ciudad
     }
+
+    void eliminar(int pCodPais, int pCodCiudad) {
+        if (primero == nullptr) {
+            return;
+        }
+        NodoCiudad* actual = primero;
+        NodoCiudad* anterior = nullptr;
+        do {
+            if (actual->codPais == pCodPais && actual->codCiudad == pCodCiudad) {
+                if (actual->siguiente == primero) { //Solo hay una ciudad
+                    primero = nullptr;
+                }
+                else if (actual == primero) { //se elimina la primera
+                    NodoCiudad* ultimo = primero;
+
+                    while (ultimo->siguiente != primero) {
+                        ultimo = ultimo->siguiente;
+                    }
+                    primero = primero->siguiente;
+                    ultimo->siguiente = primero;
+                }
+                else { //se elimina cualquier otra
+                    anterior->siguiente = actual->siguiente;
+                }
+                delete actual;
+                return;
+            }
+            anterior = actual;
+            actual = actual->siguiente;
+        } while (actual != primero);
+    }
+
     void mostrar(NodoCiudad* ciudad){
         if (ciudad != NULL){
             cout << "Codigo del pais: " << ciudad->codPais << endl;
@@ -349,6 +400,26 @@ public:
     bool existe(int idPaciente)
     {
         return buscar(idPaciente) != NULL;
+    }
+
+    void eliminar(int pIdPaciente) {
+        int indice = pIdPaciente % TAM_HASH;
+        NodoPaciente* actual = tabla[indice];
+        NodoPaciente* anterior = nullptr;
+
+        while (actual != nullptr) {
+            if (actual->idPaciente == pIdPaciente) {
+                if (anterior == nullptr) {
+                    tabla[indice] = actual->siguiente;
+                }else {
+                    anterior->siguiente = actual->siguiente;
+                }
+                delete actual;
+                return;
+            }
+            anterior = actual;
+            actual = actual->siguiente;
+        }
     }
 
     void mostrar(NodoPaciente* paciente) {
@@ -414,6 +485,26 @@ public:
         return buscar(idMedico) != NULL;
     }
 
+    void eliminar(int pIdMedico) {
+        int indice = pIdMedico % TAM_HASH;
+        NodoMedico* actual = tabla[indice];
+        NodoMedico* anterior = nullptr;
+
+        while (actual != nullptr) {
+            if (actual->idMedico == pIdMedico) {
+                if (anterior == nullptr) {
+                    tabla[indice] = actual->siguiente;
+                }else {
+                    anterior->siguiente = actual->siguiente;
+                }
+                delete actual;
+                return;
+            }
+            anterior = actual;
+            actual = actual->siguiente;
+        }
+    }
+
     void mostrar(NodoMedico* medico) {
         if (medico != NULL) {
             cout << "Id del medico: " << medico->idMedico << endl;
@@ -470,6 +561,30 @@ public:
     bool existe(int idEspecialidad){
         return buscar(idEspecialidad) != NULL;
     }
+    void eliminar(int pIdEspecialidad) {
+        if (primero == nullptr) {
+            return;
+        }
+        NodoEspecialidad* actual = primero;
+        do {
+            if (actual->idEspecialidad == pIdEspecialidad) {                
+                if (actual->siguiente == primero) { // Solo hay una especialidad
+                    primero = nullptr;
+                }
+                else {
+                    actual->anterior->siguiente = actual->siguiente;
+                    actual->siguiente->anterior = actual->anterior;                    
+                    if (actual == primero) { // Si se elimina el primero
+                        primero = actual->siguiente;
+                    }
+                }
+                delete actual;
+                return;
+            }
+            actual = actual->siguiente;
+        } while (actual != primero);
+    }
+
     void mostrar(NodoEspecialidad* especialidad) {
         if (especialidad != NULL) {
             cout << "Id de especialidad: " << especialidad->idEspecialidad << endl;
@@ -519,6 +634,35 @@ public:
     bool existe(int idCita) {
         return buscar(idCita) != NULL;
     }
+
+    void eliminar(int pIdCita) {
+        NodoCita* actual = primero;
+        while (actual != nullptr) {
+            if (actual->idCita == pIdCita) {
+                if (actual == primero) { // Eliminar el primero
+                    primero = actual->siguiente;
+                    if (primero != nullptr) {
+                        primero->anterior = nullptr;
+                    }
+                    else {
+                        ultimo = nullptr;
+                    }
+                }                
+                else if (actual == ultimo) { // Eliminar el último
+                    ultimo = actual->anterior;
+                    ultimo->siguiente = nullptr;
+                }                
+                else { // Eliminar del medio
+                    actual->anterior->siguiente = actual->siguiente;
+                    actual->siguiente->anterior = actual->anterior;
+                }
+                delete actual;
+                return;
+            }
+            actual = actual->siguiente;
+        }
+    }
+
     void mostrar(NodoCita* cita) {
         if (cita != NULL) {
             cout << "Id de la cita: " << cita->idCita << endl;
@@ -578,6 +722,30 @@ public:
         return buscar(idHabitacion) != NULL;
     }
 
+    void eliminar(int pIdHabitacion) {
+        if (primero == nullptr) {
+            return;
+        }
+        NodoHabitacion* actual = primero;
+        do {
+            if (actual->idHabitacion == pIdHabitacion) {
+                if (actual->siguiente == primero) { //Solo hay una habitación
+                    primero = nullptr;
+                }
+                else {
+                    actual->anterior->siguiente = actual->siguiente;
+                    actual->siguiente->anterior = actual->anterior;
+                    if (actual == primero) { // Si se elimina la primera
+                        primero = actual->siguiente;
+                    }
+                }
+                delete actual;
+                return;
+            }
+            actual = actual->siguiente;
+        } while (actual != primero);
+    }
+
     void mostrar(NodoHabitacion* habitacion) {
         if (habitacion != NULL) {
             cout << "Id de habitacion: " << habitacion->idHabitacion << endl;
@@ -628,6 +796,34 @@ public:
     }
     bool existe(int idHospitalizacion){
         return buscar(idHospitalizacion) != NULL;
+    }
+
+    void eliminar(int pIdHospitalizacion) {
+        NodoHospitalizacion* actual = primero;
+        while (actual != nullptr) {
+            if (actual->idHospitalizacion == pIdHospitalizacion) {
+                if (actual == primero) { // Eliminar el primero
+                    primero = actual->siguiente;
+                    if (primero != nullptr) {
+                        primero->anterior = nullptr;
+                    }
+                    else {
+                        ultimo = nullptr;
+                    }
+                }
+                else if (actual == ultimo) { // Eliminar el último
+                    ultimo = actual->anterior;
+                    ultimo->siguiente = nullptr;
+                }
+                else { //Eliminar del medio
+                    actual->anterior->siguiente = actual->siguiente;
+                    actual->siguiente->anterior = actual->anterior;
+                }
+                delete actual;
+                return;
+            }
+            actual = actual->siguiente;
+        }
     }
 
     void mostrar(NodoHospitalizacion* hospitalizacion) {
@@ -1502,10 +1698,235 @@ void buscarHospitalizacionMenu(){
     }
 }
 
+//-------Parte Eliminar------------------
+void eliminarPais() {
+    int codPais;
+    cout << "Ingrese el codigo del pais: ";
+    cin >> codPais;
+    if (!listaPaises.existe(codPais)) {
+        cout << "El pais no existe." << endl;
+        return;
+    }
+    NodoCiudad* actual = listaCiudades.primero; //Elimina todas las ciudades relacionadas con el pais
+    if (actual != nullptr) {
+        NodoCiudad* siguiente;
+        do {
+            siguiente = actual->siguiente;
+            if (actual->codPais == codPais) {
+                listaCiudades.eliminar(actual->codPais, actual->codCiudad);
+            }
+            actual = siguiente;
+        } while (listaCiudades.primero != nullptr &&
+            actual != listaCiudades.primero);
+    }
+    listaPaises.eliminar(codPais);
+    cout << "Pais eliminado correctamente." << endl;
+    }
+}
+
+void eliminarCiudad() {
+    int codPais;
+    int codCiudad;
+
+    cout << "Ingrese el codigo del pais: ";
+    cin >> codPais;
+    if (!listaPaises.existe(codPais)) {
+        cout << "El pais no existe."<< endl;
+        return;
+    }
+    cout << "Ingrese el codigo de la ciudad: ";
+    cin >> codCiudad;
+    if (!listaCiudades.existe(codPais, codCiudad)) {
+        cout << "La ciudad no existe."<< endl;
+        return;
+    }
+    
+    for (int i = 0; i < TAM_HASH; i++) {  // Eliminar pacientes de esa ciudad
+        NodoPaciente* actual = tablaPacientes.tabla[i];
+        while (actual != nullptr) {
+            NodoPaciente* siguiente = actual->siguiente;
+            if (actual->codPais == codPais &&
+                actual->codCiudad == codCiudad) {
+                eliminarPacientePorId(actual->idPaciente);
+            }
+            actual = siguiente;
+        }
+    }
+    listaCiudades.eliminar(codPais, codCiudad);
+    cout << "Ciudad eliminada correctamente." << endl;
+}
+
+void eliminarPacientePorId(int idPaciente) {
+    NodoCita* cita = listaCitas.primero; // Eliminar citas del paciente
+    while (cita != nullptr) {
+        NodoCita* siguiente = cita->siguiente;
+        if (cita->idPaciente == idPaciente) {
+            listaCitas.eliminar(cita->idCita);
+        }
+        cita = siguiente;
+    }
+    NodoHospitalizacion* hospitalizacion = listaHospitalizaciones.primero;  // Eliminar hospitalizaciones del paciente
+    while (hospitalizacion != nullptr) {
+        NodoHospitalizacion* siguiente = hospitalizacion->siguiente;
+        if (hospitalizacion->idPaciente == idPaciente) {
+            listaHospitalizaciones.eliminar(hospitalizacion->idHospitalizacion);
+        }
+        hospitalizacion = siguiente;
+    }
+    tablaPacientes.eliminar(idPaciente); //Finalmente eliminar paciente
+}
+
+void eliminarPaciente() {
+    int idPaciente;
+    cout << "Ingrese el IdPaciente: ";
+    cin >> idPaciente;
+    if (!tablaPacientes.existe(idPaciente)) {
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+    eliminarPacientePorId(idPaciente);
+    cout << "Paciente eliminado correctamente." << endl;
+}
+
+void eliminarMedico() {
+    int idMedico;
+    cout << "Ingrese el IdMedico: ";
+    cin >> idMedico;
+    if (!tablaMedicos.existe(idMedico)) {
+        cout << "El medico no existe." << endl;
+        return;
+    }
+    
+    NodoCita* cita = listaCitas.primero; // Eliminar citas del medico
+    while (cita != nullptr) {
+        NodoCita* siguiente = cita->siguiente;
+        if (cita->idMedico == idMedico) {
+            listaCitas.eliminar(cita->idCita);
+        }
+        cita = siguiente;
+    }
+    tablaMedicos.eliminar(idMedico);
+    cout << "Medico eliminado correctamente." << endl;
+}
+
+void eliminarEspecialidad() {
+    int idEspecialidad;
+    cout << "Ingrese el IdEspecialidad: ";
+    cin >> idEspecialidad;
+    if (!listaEspecialidades.existe(idEspecialidad)) {
+        cout << "La especialidad no existe." << endl;
+        return;
+    }
+    
+    for (int i = 0; i < TAM_HASH; i++) { // Eliminar medicos de esa especialidad
+        NodoMedico* medico = tablaMedicos.tabla[i];
+        while (medico != nullptr) {
+            NodoMedico* siguiente = medico->siguiente;
+            if (medico->idEspecialidad == idEspecialidad) {
+                eliminarMedicoPorId(medico->idMedico);
+            }
+            medico = siguiente;
+        }
+    }
+    listaEspecialidades.eliminar(idEspecialidad);
+    cout << "Especialidad eliminada correctamente." << endl;
+}
+
+void eliminarMedicoPorId(int idMedico) {    
+    NodoCita* cita = listaCitas.primero; // Eliminar citas del medico
+
+    while (cita != nullptr) {
+        NodoCita* siguiente = cita->siguiente;
+        if (cita->idMedico == idMedico) {
+            listaCitas.eliminar(cita->idCita);
+        }
+        cita = siguiente;
+    }
+    tablaMedicos.eliminar(idMedico); // Eliminar medico
+}
+
+void eliminarCita() {
+    int idCita;
+    int idPaciente;
+    int idMedico;
+
+    cout << "Ingrese el IdCita: ";
+    cin >> idCita;
+    NodoCita* cita = listaCitas.buscar(idCita);
+    if (cita == nullptr) {
+        cout << "La cita no existe." << endl;
+        return;
+    }
+    cout << "Ingrese el IdPaciente: ";
+    cin >> idPaciente;
+    cout << "Ingrese el IdMedico: ";
+    cin >> idMedico;
+
+    if (cita->idPaciente != idPaciente || cita->idMedico != idMedico) {
+        cout << "Los datos no coinciden con la cita." << endl;
+        return;
+    }
+    listaCitas.eliminar(idCita);
+    cout << "Cita eliminada correctamente." << endl;
+}
+
+void eliminarHabitacion() {
+    int idHabitacion;
+
+    cout << "Ingrese el IdHabitacion: ";
+    cin >> idHabitacion;
+
+    if (!listaHabitaciones.existe(idHabitacion)) {
+        cout << "La habitacion no existe." << endl;
+        return;
+    }
+    
+    NodoHospitalizacion* hospitalizacion = listaHospitalizaciones.primero; //Eliminar hospitalizaciones de la habitacion     
+    while (hospitalizacion != nullptr) {
+        NodoHospitalizacion* siguiente = hospitalizacion->siguiente;
+
+        if (hospitalizacion->idHabitacion == idHabitacion) {
+            listaHospitalizaciones.eliminar(hospitalizacion->idHospitalizacion);
+        }
+        hospitalizacion = siguiente;
+    }
+    listaHabitaciones.eliminar(idHabitacion);
+    cout << "Habitacion eliminada correctamente." << endl;
+}
+
+void eliminarHospitalizacion() {
+    int idHospitalizacion;
+    int idPaciente;
+    int idHabitacion;
+
+    cout << "Ingrese el IdHospitalizacion: ";
+    cin >> idHospitalizacion;
+    NodoHospitalizacion* hospitalizacion = listaHospitalizaciones.buscar(idHospitalizacion);
+    if (hospitalizacion == nullptr) {
+        cout << "La hospitalizacion no existe." << endl;
+        return;
+    }
+
+    cout << "Ingrese el IdPaciente: ";
+    cin >> idPaciente;
+    cout << "Ingrese el IdHabitacion: ";
+    cin >> idHabitacion;
+
+    if (hospitalizacion->idPaciente != idPaciente || hospitalizacion->idHabitacion != idHabitacion) {
+        cout << "Los datos no coinciden con la hospitalizacion." << endl;
+        return;
+    }
+    listaHospitalizaciones.eliminar(idHospitalizacion);
+    cout << "Hospitalizacion eliminada correctamente." << endl;
+}
+
+
+//-------Parte Modificar-----------------
 void modificarPais()
 {
     int codPais;
     string nuevoNombre;
+
     cout << "Digite el codigo del pais: ";
     cin >> codPais;
     cin.ignore();
@@ -1525,11 +1946,12 @@ void modificarCiudad()
 {
     int codPais;
     int codCiudad;
-    string nuevoNombre;
+    int idPaciente;
+    string nombre;
+
     cout << "Codigo del pais: ";
     cin >> codPais;
-    if (!listaPaises.existe(codPais))
-    {
+    if (!listaPaises.existe(codPais)){
         cout << "El pais no existe." << endl;
         return;
     }
@@ -1537,15 +1959,28 @@ void modificarCiudad()
     cin >> codCiudad;
     NodoCiudad* ciudad = listaCiudades.buscar(codPais, codCiudad);
 
-    if (ciudad == NULL)
-    {
+    if (ciudad == NULL){
         cout << "La ciudad no existe." << endl;
         return;
     }
-    cin.ignore();
+
+    cout << "Id del paciente: ";
+    cin >> idPaciente;
+
+    NodoPaciente* paciente = tablaPacientes.buscar(idPaciente);
+    if (paciente == NULL){
+        cout << "El paciente no existe." << endl;
+        return;
+    }
+
+    if (paciente->codPais != codPais || paciente->codCiudad != codCiudad){
+        cout << "El paciente no pertenece a esa ciudad." << endl;
+        return;
+    }
+
     cout << "Nuevo nombre de la ciudad: ";
-    getline(cin, nuevoNombre);
-    ciudad->nombre = nuevoNombre; //actualiza nombre
+    getline(cin >> nombre);
+    ciudad->nombre = nombre; //actualiza nombre
     cout << "Ciudad modificada correctamente." << endl;
 }
 
@@ -1556,29 +1991,35 @@ void modificarPaciente()
     int idPaciente;
     string telefono;
     string correo;
+
     cout << "Codigo del pais: ";
     cin >> codPais;
     cout << "Codigo de la ciudad: ";
     cin >> codCiudad;
-    if (!listaCiudades.existe(codPais, codCiudad))
-    {
+    if (!listaCiudades.existe(codPais, codCiudad)){
         cout << "La ciudad no existe." << endl;
         return;
     }
     cout << "Id del paciente: ";
     cin >> idPaciente;
     NodoPaciente* paciente = tablaPacientes.buscar(idPaciente);
-    if (paciente == NULL)
-    {
+    if (paciente == NULL){
         cout << "El paciente no existe." << endl;
         return;
     }
-    if (paciente->codPais != codPais || paciente->codCiudad != codCiudad)
-    {
+    if (paciente->codPais != codPais || paciente->codCiudad != codCiudad){
         cout << "El paciente no pertenece a esa ciudad." << endl;
         return;
     }
-    cin.ignore();
+    cout << "Nuevo telefono: ";
+    cin >> telefono;
+
+    cout << "Nuevo correo: ";
+    cin >> correo;
+
+    paciente->telefono = telefono;
+    paciente->correo = correo;
+
     cout << "Paciente modificado correctamente." << endl;
 }
 
@@ -1841,11 +2282,60 @@ void menuBusquedas(){
     } while (opcion != 0);
 }
 
+void menuEliminaciones() {
+    int opcion;
+    do {
+        cout << "\n===== ELIMINACIONES =====" << endl;
+        cout << "1. Eliminar Pais" << endl;
+        cout << "2. Eliminar Ciudad" << endl;
+        cout << "3. Eliminar Paciente" << endl;
+        cout << "4. Eliminar Medico" << endl;
+        cout << "5. Eliminar Especialidad" << endl;
+        cout << "6. Eliminar Cita" << endl;
+        cout << "7. Eliminar Habitacion" << endl;
+        cout << "8. Eliminar Hospitalizacion" << endl;
+        cout << "0. Regresar" << endl;
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+
+        switch (opcion) {
+        case 1:
+            eliminarPais();
+            break;
+        case 2:
+            eliminarCiudad();
+            break;
+        case 3:
+            eliminarPaciente();
+            break;
+        case 4:
+            eliminarMedico();
+            break;
+        case 5:
+            eliminarEspecialidad();
+            break;
+        case 6:
+            eliminarCita();
+            break;
+        case 7:
+            eliminarHabitacion();
+            break;
+        case 8:
+            eliminarHospitalizacion();
+            break;
+        case 0:
+            cout << "Regresando..." << endl;
+            break;
+        default:
+            cout << "Opcion invalida." << endl;
+        }
+    } while (opcion != 0);
+}
+
 void menuModificaciones()
 {
     int opcion;
-    do
-    {
+    do{
         cout << "\n===== MODIFICACIONES =====" << endl;
         cout << "1. Pais" << endl;
         cout << "2. Ciudad" << endl;
@@ -1899,7 +2389,8 @@ void menuMantenimiento() {
         cout << "\n===== MANTENIMIENTO DE LA BASE DE DATOS =====" << endl;
         cout << "1. Inserciones" << endl;
         cout << "2. Busquedas" << endl;
-        cout << "3. Modificaciones" << endl;
+        cout << "3. Eliminaciones" << endl;
+        cout << "4. Modificaciones" << endl;
         cout << "0. Regresar" << endl;
         cout << "Digite una opcion: ";
         cin >> opcion;
@@ -1912,6 +2403,9 @@ void menuMantenimiento() {
             menuBusquedas();
             break;
         case 3:
+            menuEliminaciones();
+            break;
+        case 4:
             menuModificaciones();
             break;
         case 0:
