@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Heap-HeapSort\\x64\\Debug\\Heap-HeapSort.obj",
+            "outputs": [
+                "Heap-HeapSort\\x64\\Debug\\Heap-HeapSort.cpp.obj.dt.module.json",
+                "Heap-HeapSort\\x64\\Debug\\Heap-HeapSort.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
