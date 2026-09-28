@@ -1958,7 +1958,6 @@ void modificarCiudad()
 {
     int codPais;
     int codCiudad;
-    int idPaciente;
     string nombre;
 
     cout << "Codigo del pais: ";
@@ -1973,20 +1972,6 @@ void modificarCiudad()
 
     if (ciudad == NULL){
         cout << "La ciudad no existe." << endl;
-        return;
-    }
-
-    cout << "Id del paciente: ";
-    cin >> idPaciente;
-
-    NodoPaciente* paciente = tablaPacientes.buscar(idPaciente);
-    if (paciente == NULL){
-        cout << "El paciente no existe." << endl;
-        return;
-    }
-
-    if (paciente->codPais != codPais || paciente->codCiudad != codCiudad){
-        cout << "El paciente no pertenece a esa ciudad." << endl;
         return;
     }
 
