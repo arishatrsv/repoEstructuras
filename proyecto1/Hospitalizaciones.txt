@@ -1,3 +1,20 @@
 1;2;2;1;2026-09-01;0000;Observacion medica
 2;4;4;3;2026-09-02;0000;Cuidados intensivos
 3;1;1;4;2026-08-20;2026-08-25;Tratamiento cardiaco
+4;3;3;2;2026-08-28;2026-08-31;Cirugia menor
+5;5;5;5;2026-09-03;0000;Tratamiento dermatologico
+6;6;6;6;2026-08-15;2026-08-18;Procedimiento ginecologico
+7;7;7;7;2026-09-04;0000;Monitoreo postquirurgico
+8;8;8;8;2026-08-10;2026-08-22;Rehabilitacion de fractura
+9;9;9;9;2026-09-05;0000;Crisis nerviosa
+10;10;10;10;2026-08-05;2026-08-08;Infeccion severa
+11;11;11;11;2026-09-06;0000;Complicacion renal
+12;12;12;12;2026-08-12;2026-08-14;Descompensacion hormonal
+13;13;13;13;2026-09-07;0000;Gastritis aguda
+14;14;14;14;2026-07-20;2026-08-01;Tratamiento oncologico
+15;15;15;15;2026-09-08;0000;Neumonia grave
+16;16;16;16;2026-08-01;2026-08-06;Brote reumatico
+17;17;17;17;2026-09-09;0000;Fallo renal agudo
+18;18;18;18;2026-08-25;2026-08-29;Cuarentena por infeccion
+19;19;19;19;2026-09-10;0000;Transfucion sanguinea
+20;20;20;20;2026-08-18;2026-08-21;Recuperacion postanestesia

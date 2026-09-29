@@ -188,14 +188,14 @@ public:
 };
 
 // ------------------ Programa Principal ------------------
-int main() {
-	/*ListaSimple L1;
+/*int main() {
+	ListaSimple L1;
 	L1.Insertar(23);
 	L1.Insertar(44);
 	L1.Insertar(89);
 	
 	L1.mostrar();
-	cout<<L1.buscar(44)<<endl;*/
+	cout<<L1.buscar(44)<<endl;
 	
 	
 	
@@ -223,5 +223,6 @@ int main() {
     else
         cout << "Identificacion " << id << " no encontrada." << endl;*/
     
-    return 0;
-}
+   // return 0;
+//}
+

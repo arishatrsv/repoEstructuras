@@ -2995,6 +2995,7 @@ int main() {
     int opcion;
     do {
         cout << "\n========== MENU PRINCIPAL ==========" << endl;
+        std::cout << "LibHaru funciona correctamente." << std::endl;
         cout << "1. Leer Archivos" << endl;
         cout << "2. Mantenimiento de la Base de Datos" << endl;
         cout << "0. Salir" << endl;

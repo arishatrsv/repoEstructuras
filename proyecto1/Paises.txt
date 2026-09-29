@@ -1,3 +1,20 @@
 12;Costa Rica
 23;Estados Unidos
 45;Panama
+10;Colombia
+15;Mexico
+18;Espana
+21;Argentina
+27;Chile
+31;Peru
+34;Guatemala
+38;Honduras
+40;Nicaragua
+42;El Salvador
+50;Brasil
+52;Uruguay
+55;Paraguay
+60;Ecuador
+63;Bolivia
+68;Canada
+72;Alemania

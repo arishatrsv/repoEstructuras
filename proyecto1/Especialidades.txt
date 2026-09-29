@@ -3,3 +3,18 @@
 3;Medicina General;Atencion medica general
 4;Dermatologia;Atencion de enfermedades de la piel
 5;Neurologia;Atencion de enfermedades del sistema nervioso
+6;Ginecologia;Atencion de la salud femenina
+7;Oftalmologia;Atencion de enfermedades de los ojos
+8;Ortopedia;Tratamiento de lesiones del sistema musculoesqueletico
+9;Psiquiatria;Salud mental y trastornos emocionales
+10;Otorrinolaringologia;Atencion de oido nariz y garganta
+11;Urologia;Sistema urinario y reproductor masculino
+12;Endocrinologia;Tratamiento de hormonas y metabolismo
+13;Gastroenterologia;Atencion del sistema digestivo
+14;Oncologia;Diagnostico y tratamiento del cancer
+15;Neumologia;Atencion de enfermedades del sistema respiratorio
+16;Reumatologia;Atencion de enfermedades articulares y autoinmunes
+17;Nefrologia;Atencion y cuidado de los rinones
+18;Infectologia;Tratamiento de enfermedades infecciosas
+19;Hematologia;Tratamiento de trastornos en la sangre
+20;Anestesiologia;Control del dolor y anestesia quirurgica
