@@ -1,0 +1,3 @@
+C:\TEC\2-Semestre\E.Datos\Tareas\tarea1Estructuras\proyecto1\x64\Debug\hpdf.dll
+C:\TEC\2-Semestre\E.Datos\Tareas\tarea1Estructuras\proyecto1\x64\Debug\libpng16d.dll
+C:\TEC\2-Semestre\E.Datos\Tareas\tarea1Estructuras\proyecto1\x64\Debug\zd.dll

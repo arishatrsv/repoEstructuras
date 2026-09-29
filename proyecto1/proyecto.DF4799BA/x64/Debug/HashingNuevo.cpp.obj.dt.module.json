@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "proyecto.DF4799BA\\x64\\Debug\\HashingNuevo.obj",
+            "outputs": [
+                "proyecto.DF4799BA\\x64\\Debug\\HashingNuevo.cpp.obj.dt.module.json",
+                "proyecto.DF4799BA\\x64\\Debug\\HashingNuevo.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
