@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "TareaCorta#2\\x64\\Debug\\TareaCorta2.obj",
+            "outputs": [
+                "TareaCorta#2\\x64\\Debug\\TareaCorta2.cpp.obj.dt.module.json",
+                "TareaCorta#2\\x64\\Debug\\TareaCorta2.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
