@@ -13,6 +13,18 @@ class nodo;
 class lista;
 typedef nodo* pnodo; // Alias para puntero a nodo (pnodo = nodo*)
 
+bool EsDigito(char c) {
+    return (c >= '0' && c <= '9');
+}
+
+bool EsEspacio(char c) { // Comprueba manualmente espacios en blanco o saltos de linea
+    return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+}
+
+bool EsOperador(char c) { // Valida si un caracter corresponde a un operador matematico
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')');
+} // || es or, retorna true o false. 
+
 class nodo {
 public:
     nodo(string pvalor) { // Constructor con un valor, puntero a nulo
@@ -28,10 +40,6 @@ private:
     nodo* siguiente;  // guarda direccion del siguiente nodo
     friend class lista; // permite que la clase lista acceda a los miembros privados
     friend class Bicola; // permite que acceda a los miembros privados
-    /*friend class Pila; // permite que acceda a los miembros privados
-    friend lista* InfijoAPostfijo(pnodo inicioInfijo); // permite que acceda a los miembros privados
-    friend void MostrarLista(pnodo inicio);
-    friend double EvaluarPostfijo(pnodo inicioPostfijo);*/
 };
 
 class lista {
@@ -218,28 +226,7 @@ public:
         izquierdo = NULL;
         derecho = NULL;
     }
-
-    string ObtenerValor(){
-        return valor;
-    }
-
-    pNodoArbol ObtenerIzquierdo(){
-        return izquierdo;
-    }
-
-    pNodoArbol ObtenerDerecho(){
-        return derecho;
-    }
-
-    void AsignarIzquierdo(pNodoArbol nodo){
-        izquierdo = nodo;
-    }
-
-    void AsignarDerecho(pNodoArbol nodo){
-        derecho = nodo;
-    }
-    friend class PilaOperadores;
-    friend class PilaOperandos;
+    friend class Arbol
 };
 
 class NodoPilaArbol;
@@ -263,27 +250,26 @@ private:
     pNodoPilaArbol tope;
 public:
     PilaOperadores() { tope = NULL] };
-	bool estaVacia() { return tope == NULL; }
-    void Apilar(pNodoArbol nodo);
-    pNodoArbol Desapilar();
+	bool estaVacia() { 
+        return tope == NULL; }
+    void Push(pNodoArbol nodo); //apilar
+    pNodoArbol Pop(); //desapilar
     pNodoArbol VerTope();
 };
 
-void PilaOperadores::Apilar(pNodoArbol nodo) { //Push= Agrega un nuevo elemento al tope de la pila
+void PilaOperadores::Push(pNodoArbol nodo) { //Push= Agrega un nuevo elemento al tope de la pila
     pNodoPilaArbol nuevo = new NodoPilaArbol(nodo);
     if (estaVacia()) {
         tope = nuevo;
     }
     else {
-        pNodoPilaArbol actual = tope;
-        while (actual->siguiente != NULL) {
-            actual = actual->siguiente;
+        nuevo->siguiente = tope;
+        tope = nuevo;
         }
-        actual->siguiente = nuevo;
     }
 }
 
-pNodoArbol PilaOperadores::Desapilar() { //Pop= Saca y retorna el elemento que esta en el tope
+pNodoArbol PilaOperadores::Pop() { //Pop= Saca y retorna el elemento que esta en el tope
     if (estaVacia()){
         return NULL;
     }
@@ -294,18 +280,10 @@ pNodoArbol PilaOperadores::Desapilar() { //Pop= Saca y retorna el elemento que e
         tope = NULL;
         return nodo;
     }
-
-    pNodoPilaArbol anterior = NULL;
-    pNodoPilaArbol actual = tope;
-
-    while (actual->siguiente != NULL){
-        anterior = actual;
-        actual = actual->siguiente;
-    }
-
-    pNodoArbol nodo = actual->nodoArbol;
-    anterior->siguiente = NULL;
-    delete actual;
+    pNodoPilaArbol temp = tope;
+    pNodoArbol nodo = temp->nodoArbol;
+    tope = temp->siguiente;
+    delete temp;
     return nodo;
 }
 
@@ -313,12 +291,7 @@ pNodoArbol PilaOperadores::VerTope(){
     if (estaVacia()){
         return NULL;
     }
-
-    pNodoPilaArbol actual = tope;
-    while (actual->siguiente != NULL){
-        actual = actual->siguiente;
-    }
-    return actual->nodoArbol;
+    return tope->nodoArbol;
 }
 
 class PilaOperandos {
@@ -332,48 +305,30 @@ public:
     bool estaVacia() {
         return tope == NULL;
     }
-    void Apilar(pNodoArbol nodo);
-    pNodoArbol Desapilar();
+    void Push(pNodoArbol nodo); //apilar
+    pNodoArbol Pop(); //desapilar
     pNodoArbol VerTope();   
 };
 
-void PilaOperandos::Apilar(pNodoArbol nodo) { //Push= Agrega un nuevo elemento al tope de la pila
+void PilaOperandos::Push(pNodoArbol nodo) { //Push= Agrega un nuevo elemento al tope de la pila
     pNodoPilaArbol nuevo = new NodoPilaArbol(nodo);
     if (estaVacia()) {
         tope = nuevo;
     }
     else {
-        pNodoPilaArbol actual = tope;
-        while (actual->siguiente != NULL) {
-            actual = actual->siguiente;
-        }
-        actual->siguiente = nuevo;
+        nuevo->siguiente = tope;
+        tope = nuevo;
     }
 }
 
-pNodoArbol PilaOperandos::Desapilar() { //Pop= Saca y retorna el elemento que esta en el tope
+pNodoArbol PilaOperandos::Pop() { //Pop= Saca y retorna el elemento que esta en el tope
     if (estaVacia()) {
         return NULL;
     }
-
-    if (tope->siguiente == NULL) {
-        pNodoArbol nodo = tope->nodoArbol;
-        delete tope;
-        tope = NULL;
-        return nodo;
-    }
-
-    pNodoPilaArbol anterior = NULL;
-    pNodoPilaArbol actual = tope;
-
-    while (actual->siguiente != NULL) {
-        anterior = actual;
-        actual = actual->siguiente;
-    }
-
-    pNodoArbol nodo = actual->nodoArbol;
-    anterior->siguiente = NULL;
-    delete actual;
+    pNodoPilaArbol temp = tope;
+    pNodoArbol nodo = temp->nodoArbol;
+    tope = temp->siguiente;
+    delete temp;
     return nodo;
 }
 
@@ -381,25 +336,50 @@ pNodoArbol PilaOperandos::VerTope() {
     if (estaVacia()) {
         return NULL;
     }
+    return tope->nodoArbol;
+}
 
-    pNodoPilaArbol actual = tope;
-    while (actual->siguiente != NULL) {
-        actual = actual->siguiente;
+class Arbol {
+private:
+    pNodoArbol raiz;
+public:
+    Arbol() {
+		raiz = NULL;
     }
-    return actual->nodoArbol;
+	pNodoArbol ObtenerRaiz() {
+		return raiz;
+	}
+	void AsignarRaiz(pNodoArbol pRaiz) {
+		raiz = pRaiz;
+	}
+    pNodoArbol CrearNodo(string valor) {
+        return new NodoArbol(valor);
+    }
+    bool EsOperador(string valor);
+    int Prioridad(string operador);
+    void AplicarOperador(PilaOperadores& operadores,PilaOperandos& operandos);
+};
+
+bool Arbol::EsOperador(string valor) {
+    return valor == "+" ||
+        valor == "-" ||
+        valor == "*" ||
+        valor == "/" ||
+        valor == "^";
 }
 
-bool EsDigito(char c) {
-    return (c >= '0' && c <= '9');
+int Arbol::Prioridad(string operador) {
+    if (operador == "^") {
+        return 3;
+    }
+    if (operador == "*" || operador == "/") {
+        return 2;
+    }
+    if (operador == "+" || operador == "-") {
+        return 1;
+    }
+    return 0;
 }
-
-bool EsEspacio(char c) { // Comprueba manualmente espacios en blanco o saltos de linea
-    return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
-}
-
-bool EsOperador(char c) { // Valida si un caracter corresponde a un operador matematico
-    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')');
-} // || es or, retorna true o false. 
 
 pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte su contenido en una lista enlazada simple
     ifstream archivo(rutaArchivo.c_str()); // abre el archivo para lectura. c_str concierte string en un arreglo de caracteres
@@ -409,41 +389,30 @@ pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte s
     }
 
     lista* listaExpresion = new lista(); // Se crea dinamicamente en memoria para no perder los datos
-    string linea; // para almacenat cada linea leida del archivo
-    string expresionCompleta = ""; // para almacenar la expresion completa
+	char caracter; // para almacenar cada caracter leido del archivo
 
-    while (getline(archivo, linea)) { //Lee el archivo linea por linea
-        expresionCompleta += linea;
+    while (archivo.get(caracter)) {
+        if (EsEspacio(caracter)) {
+            continue
+        }
+        if(EsDigito(caracter) || EsOperador(caracter)){
+            string simbolo(1, caracter);
+			listaExpresion->InsertarFinal(simbolo); // Agrega el simbolo a la lista
     }
     archivo.close();
+    return listaExpresion->ObtenerPrimero(); // Retorna el puntero al inicio de la lista
+}
 
-    int i = 0; //para recorrer la cadena completa
-    int n = expresionCompleta.length(); //longuitut de la cadena
-
-    while (i < n) { // Recorre la cadena separando numeros de varios digitos u operadores
-        char c = expresionCompleta[i]; //obtiene el caracter actual
-
-        if (EsEspacio(c)) { // Si es un espacio, se ignora y avanza, isspace sale de la libreria cctype
-            i++;
-            continue;
-        }
-
-        if (EsDigito(c)) { // Si encuentra un digito, agrupa los continuos para formar el numero, isdigit tmb esta en cctype
-            string numero = "";
-            while (i < n && EsDigito(expresionCompleta[i])) {
-                numero += expresionCompleta[i]; //agrega el digito al numero
-                i++;
-            }
-            listaExpresion->InsertarFinal(numero); // Agrega el numero completo a la lista
-        }
-        else if (EsOperador(c)) { // Si es un operador, lo agrega a la lista
-            string op(1, c);//convierte el caracter en string
-            listaExpresion->InsertarFinal(op); // agrega el operador a la lista
-            i++;
-        }
-        else {
-            i++;
+int main() {
+    Bicola archivos;
+    string nombresArchivos[5] = {"Arch1.txt","Arch2.txt","Arch3.txt","Arch4.txt","Arch5.txt"};
+    for (int i = 0; i < 5; i++) {
+        pnodo expresion = LeerArchivo(nombresArchivos[i]);
+        if (expresion != NULL) {
+            archivos.insertarFinal(expresion);
         }
     }
-    return listaExpresion->ObtenerPrimero(); // Retorna el puntero al inicio de la lista
+    cout << "Archivos cargados en la bicola:" << endl;
+    archivos.mostrar();
+    return 0;
 }
