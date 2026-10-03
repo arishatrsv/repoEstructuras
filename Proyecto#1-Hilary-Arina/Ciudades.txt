@@ -1,0 +1,20 @@
+12;123;Heredia
+23;12;Orlando
+12;123;Mata de Platano
+12;456;Tres Rios
+45;11;David
+12;123;San Jose
+12;123;Alajuela
+12;456;Cartago
+23;12;Miami
+23;12;Tampa
+10;20;Bogota
+10;20;Medellin
+15;30;Ciudad de Mexico
+15;30;Guadalajara
+18;40;Madrid
+18;40;Barcelona
+21;50;Buenos Aires
+27;60;Santiago
+31;70;Lima
+45;11;Panama City
