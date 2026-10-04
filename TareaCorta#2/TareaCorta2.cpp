@@ -35,6 +35,13 @@ public:
         valor = pvalor;
         siguiente = sigNodo; // apunta al nodo indicado
     }
+    string ObtenerValor() {
+    return valor;
+}
+    pnodo ObtenerSiguiente() {
+    return siguiente;
+}
+
 private:
     string valor;     // almacena la expresion, operador o numero
     nodo* siguiente;  // guarda direccion del siguiente nodo
@@ -226,11 +233,15 @@ public:
         izquierdo = NULL;
         derecho = NULL;
     }
+    string ObtenerValor() {
+    return valor;
+}
     friend class Arbol;
 };
 
 class NodoPilaArbol;
 typedef NodoPilaArbol* pNodoPilaArbol;
+class PilaRecorrido;
 
 class NodoPilaArbol{
 private: 
@@ -243,6 +254,7 @@ public:
 	}
 	friend class PilaOperadores;
     friend class PilaOperandos;
+    friend class PilaRecorrido;
 };
 
 class PilaOperadores {
@@ -358,6 +370,54 @@ pNodoArbol PilaOperandos::VerTope() {
     return tope->nodoArbol;
 }
 
+class PilaRecorrido {
+private:
+    pNodoPilaArbol tope;
+
+public:
+    PilaRecorrido() {
+        tope = NULL;
+    }
+
+    bool estaVacia() {
+        return tope == NULL;
+    }
+
+    void Push(pNodoArbol nodo);
+    pNodoArbol Pop();
+    pNodoArbol VerTope();
+};
+
+void PilaRecorrido::Push(pNodoArbol nodo) {
+    pNodoPilaArbol nuevo = new NodoPilaArbol(nodo);
+
+    if (estaVacia()) {
+        tope = nuevo;
+    }
+    else {
+        nuevo->siguiente = tope;
+        tope = nuevo;
+    }
+}
+
+pNodoArbol PilaRecorrido::Pop() {
+    if (estaVacia()) {
+        return NULL;
+    }
+    pNodoPilaArbol temp = tope;
+    pNodoArbol nodo = temp->nodoArbol;
+    tope = tope->siguiente;
+    delete temp;
+    return nodo;
+}
+pNodoArbol PilaRecorrido::VerTope() {
+    if (estaVacia()) {
+        return NULL;
+    }
+
+    return tope->nodoArbol;
+}
+
 class Arbol {
 private:
     pNodoArbol raiz;
@@ -378,6 +438,14 @@ public:
     int PrioridadDentro(string operador);
     int PrioridadFuera(string operador);
     void AplicarOperador(PilaOperadores& operadores,PilaOperandos& operandos);
+    void MostrarInordenIterativo();
+    void MostrarPreorden();
+    void MostrarPreordenRecursivo(pNodoArbol nodo);
+    void MostrarPostordenIterativo();
+    double EvaluarRecursivo(pNodoArbol nodo);
+    double Evaluar();
+    void GraficarArbol(pNodoArbol nodo, int espacio);
+    void MostrarArbol();
 };
 
 bool Arbol::EsOperador(string valor) {
@@ -420,6 +488,189 @@ int Arbol::PrioridadFuera(string operador) {
     return 0;
 }
 
+void Arbol::AplicarOperador(PilaOperadores& operadores, PilaOperandos& operandos) {
+    pNodoArbol derecho = operandos.Pop();
+    pNodoArbol izquierdo = operandos.Pop();
+    pNodoArbol operador = operadores.Pop();
+    if (derecho == NULL || izquierdo == NULL || operador == NULL) {
+        return;
+    }
+    operador->izquierdo = izquierdo;
+    operador->derecho = derecho;
+    operandos.Push(operador);
+}
+
+void Arbol::MostrarInordenIterativo() {
+    PilaRecorrido pila;
+    pNodoArbol actual = raiz;
+    while (actual != NULL || !pila.estaVacia()) {
+        while (actual != NULL) {
+            pila.Push(actual);
+            actual = actual->izquierdo;
+        }
+        actual = pila.Pop();
+        cout << actual->valor << " ";
+        actual = actual->derecho;
+    }
+    cout << endl;
+}
+
+void Arbol::MostrarPreordenRecursivo(pNodoArbol nodo) {
+    if (nodo == NULL) {
+        return;
+    }
+    cout << nodo->valor << " ";
+    MostrarPreordenRecursivo(nodo->izquierdo);
+    MostrarPreordenRecursivo(nodo->derecho);
+}
+
+void Arbol::MostrarPreorden() {
+    MostrarPreordenRecursivo(raiz);
+    cout << endl;
+}
+
+void Arbol::MostrarPostordenIterativo() {
+    if (raiz == NULL) {
+        return;
+    }
+    PilaRecorrido pila1;
+    PilaRecorrido pila2;
+    pila1.Push(raiz);
+    while (!pila1.estaVacia()) {
+        pNodoArbol actual = pila1.Pop();
+        pila2.Push(actual);
+        if (actual->izquierdo != NULL) {
+            pila1.Push(actual->izquierdo);
+        }
+        if (actual->derecho != NULL) {
+            pila1.Push(actual->derecho);
+        }
+    }
+    while (!pila2.estaVacia()) {
+        cout << pila2.Pop()->valor << " ";
+    }
+    cout << endl;
+}
+
+double Arbol::EvaluarRecursivo(pNodoArbol nodo) {
+    if (nodo == NULL) {
+        return 0;
+    }
+    if (!EsOperador(nodo->valor)) {
+        return atof(nodo->valor.c_str());
+    }
+    double izquierdo = EvaluarRecursivo(nodo->izquierdo);
+    double derecho = EvaluarRecursivo(nodo->derecho);
+    if (nodo->valor == "+") {
+        return izquierdo + derecho;
+    }
+    if (nodo->valor == "-") {
+        return izquierdo - derecho;
+    }
+    if (nodo->valor == "*") {
+        return izquierdo * derecho;
+    }
+    if (nodo->valor == "/") {
+        if (derecho == 0) {
+            cout << "Error: division entre cero" << endl;
+            return 0;
+        }
+        return izquierdo / derecho;
+    }
+    if (nodo->valor == "^") {
+        double resultado = 1;
+        for (int i = 0; i < derecho; i++) {
+            resultado = resultado * izquierdo;
+        }
+        return resultado;
+    }
+    return 0;
+}
+
+double Arbol::Evaluar() {
+    return EvaluarRecursivo(raiz);
+}
+
+void Arbol::GraficarArbol(pNodoArbol nodo, int espacio) {
+    if (nodo == NULL) {
+        return;
+    }
+    espacio += 5;
+    GraficarArbol(nodo->derecho, espacio);
+    cout << endl;
+    for (int i = 5; i < espacio; i++) {
+        cout << " ";
+    }
+    cout << nodo->valor << endl;
+    GraficarArbol(nodo->izquierdo, espacio);
+}
+
+void Arbol::MostrarArbol() {
+    GraficarArbol(raiz, 0);
+}
+
+void ProcesarExpresion(pnodo expresion, Arbol& arbol, ofstream& archivoComparaciones) {
+    PilaOperadores operadores;
+    PilaOperandos operandos;
+    pnodo actual = expresion;
+    while (actual != NULL) {
+        string valor = actual->ObtenerValor();
+        // Si es un numero, se coloca en la pila de operandos
+        if (!arbol.EsOperador(valor) && valor != "(" && valor != ")") {
+            pNodoArbol nuevo = arbol.CrearNodo(valor);
+            operandos.Push(nuevo);
+        }
+        // Si es un parentesis de apertura
+        else if (valor == "(") {
+            pNodoArbol nuevo = arbol.CrearNodo(valor);
+            operadores.Push(nuevo);
+        }
+        // Si es un parentesis de cierre
+        else if (valor == ")") {
+            while (!operadores.estaVacia() &&
+                    operadores.VerTope()->ObtenerValor() != "(") {
+                archivoComparaciones << "Comparacion: "
+                                        << operadores.VerTope()->ObtenerValor()
+                                        << " con )" << endl;
+                arbol.AplicarOperador(operadores, operandos);
+            }
+            if (!operadores.estaVacia() &&
+                operadores.VerTope()->ObtenerValor() == "(") {
+                operadores.Pop();
+            }
+        }
+        // Si es un operador
+        else {
+            pNodoArbol nuevo = arbol.CrearNodo(valor);
+            while (!operadores.estaVacia() &&
+                    operadores.VerTope()->ObtenerValor() != "(" &&
+                    arbol.PrioridadDentro(operadores.VerTope()->ObtenerValor())
+                    >= arbol.PrioridadFuera(valor)) {
+                    archivoComparaciones
+                        << "Comparar "
+                        << valor
+                        << " con "
+                        << operadores.VerTope()->ObtenerValor()
+                        << endl;
+                    archivoComparaciones
+                        << "Se desapila "
+                        << operadores.VerTope()->ObtenerValor()
+                        << endl;
+                    arbol.AplicarOperador(operadores, operandos);
+            }
+            operadores.Push(nuevo);
+        }
+        actual = actual->ObtenerSiguiente();
+    }
+    // Aplicar los operadores que quedaron en la pila
+    while (!operadores.estaVacia()) {
+        arbol.AplicarOperador(operadores, operandos);
+    }
+    if (!operandos.estaVacia()) {
+        arbol.AsignarRaiz(operandos.Pop());
+    }
+}
+
 pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte su contenido en una lista enlazada simple
     ifstream archivo(rutaArchivo.c_str()); // abre el archivo para lectura. c_str concierte string en un arreglo de caracteres
     if (!archivo.is_open()) { // is_open revisa si se abrio correctamente
@@ -453,15 +704,68 @@ pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte s
     return listaExpresion->ObtenerPrimero(); // Retorna el puntero al inicio de la lista
 }
 
+void MostrarExpresionOriginal(pnodo expresion) {
+    pnodo actual = expresion;
+    while (actual != NULL) {
+        cout << actual->ObtenerValor();
+        actual = actual->ObtenerSiguiente();
+    }
+    cout << endl;
+}
+
 int main() {
     Bicola archivos;
-    string nombresArchivos[5] = {"Arch1.txt","Arch2.txt","Arch3.txt","Arch4.txt","Arch5.txt"};
+    string nombresArchivos[5] = {
+        "Arch1.txt",
+        "Arch2.txt",
+        "Arch3.txt",
+        "Arch4.txt",
+        "Arch5.txt"
+    };
+    ofstream archivoComparaciones("Comparaciones.txt");
+    if (!archivoComparaciones.is_open()) {
+        cout << "No se pudo crear el archivo de comparaciones." << endl;
+        return 1;
+    }
+    ofstream archivoEvaluacion("Evaluacion.txt");
+    if (!archivoEvaluacion.is_open()) {
+        cout << "No se pudo crear el archivo de evaluacion." << endl;
+        return 1;
+    }
     for (int i = 0; i < 5; i++) {
         pnodo expresion = LeerArchivo(nombresArchivos[i]);
         if (expresion != NULL) {
             archivos.insertarFinal(expresion);
+            Arbol arbol;
+            archivoComparaciones << "Archivo: "
+                                    << nombresArchivos[i] << endl;
+            ProcesarExpresion(
+                expresion,
+                arbol,
+                archivoComparaciones
+            );
+            archivoEvaluacion
+                << nombresArchivos[i]
+                << " = "
+                << arbol.Evaluar()
+                << endl;
+            cout << endl;
+            cout << "Expresion original: ";
+            MostrarExpresionOriginal(expresion);
+            cout << "Recorrido inorder iterativo: ";
+            arbol.MostrarInordenIterativo();
+            cout << "Recorrido preorden recursivo: ";
+            arbol.MostrarPreorden();
+            cout << "Recorrido postorden iterativo: ";
+            arbol.MostrarPostordenIterativo();
+            cout << "Resultado: "<< arbol.Evaluar()<< endl;
+            cout << "Arbol:" << endl;
+            arbol.MostrarArbol();
         }
     }
+    archivoComparaciones.close();
+    archivoEvaluacion.close();
+    cout << endl;
     cout << "Archivos cargados en la bicola:" << endl;
     archivos.mostrar();
     return 0;
