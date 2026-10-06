@@ -1,0 +1,64 @@
+--------------------------------
+Archivo: Arch1.txt
+--------------------------------
+Desapila: 4
+Desapila: 15
+Desapila: 3
+Desapila: 11.000000
+Desapila: 2
+Desapila: 5
+Desapila: 10.000000
+Desapila: 12
+Desapila: 2.000000
+Desapila: 14.000000
+
+--------------------------------
+Archivo: Arch2.txt
+--------------------------------
+Desapila: 2
+Desapila: 5
+Desapila: 10.000000
+Desapila: 12
+Desapila: 4
+Desapila: 16
+Desapila: 4.000000
+Desapila: 5
+Desapila: 9.000000
+Desapila: 2.000000
+
+--------------------------------
+Archivo: Arch3.txt
+--------------------------------
+Desapila: 3
+Desapila: 2
+Desapila: 2
+Desapila: 10
+Desapila: 5.000000
+Desapila: 8.000000
+
+--------------------------------
+Archivo: Arch4.txt
+--------------------------------
+Desapila: 2
+Desapila: 15
+Desapila: 3
+Desapila: 7.500000
+Desapila: 421.875000
+Desapila: 4
+Desapila: 5
+Desapila: 6
+Desapila: 1.200000
+Desapila: 5
+Desapila: 3.800000
+Desapila: 1687.500000
+
+--------------------------------
+Archivo: Arch5.txt
+--------------------------------
+Desapila: 3
+Desapila: 8
+Desapila: 5
+Desapila: 2
+Desapila: 32.000000
+Desapila: 512.000000
+

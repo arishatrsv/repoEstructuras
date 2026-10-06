@@ -160,7 +160,8 @@ public:
             cout << "Bicola vacia.\n";
             return NULL;
         }
-        pnodo valor = datos[frente]; // Guarda temporalmente el nodo del frente
+        pnodo lista = datos[frente]; // Guarda temporalmente el nodo del frente
+		datos[frente] = NULL; // Limpia la referencia en el arreglo
         cantidad--; // Disminuye la cantidad de elementos
         if (cantidad == 0) { // Verifica si se elimino el ultimo elemento
             frente = 0; // Reinicia el frente
@@ -169,7 +170,7 @@ public:
         else {
             frente = (frente + 1) % TAM; // Mueve el frente una posicion hacia adelante de forma circular
         }
-        return valor;// Retorna el nodo que fue eliminado
+        return lista;// Retorna el nodo que fue eliminado
     }
 
     pnodo eliminarFinal() { // Elimina y retorna el nodo que esta en el final
@@ -178,6 +179,7 @@ public:
             return NULL;
         }
         pnodo valor = datos[fondo]; // Guarda temporalmente el nodo del final
+        datos[fondo] = NULL;
         cantidad--;
         if (cantidad == 0) { // Verifica si se elimino el ultimo elemento
             frente = 0; // Reinicia el frente
@@ -309,7 +311,11 @@ pNodoArbol PilaOperadores::VerTope(){
     if (estaVacia()){
         return NULL;
     }
-    return tope->nodoArbol;
+    pNodoPilaArbol actual = tope;
+    while (actual->siguiente != NULL) {
+        actual = actual->siguiente;
+    }
+    return actual->nodoArbol;
 }
 
 class PilaOperandos {
@@ -367,7 +373,11 @@ pNodoArbol PilaOperandos::VerTope() {
     if (estaVacia()) {
         return NULL;
     }
-    return tope->nodoArbol;
+    pNodoPilaArbol actual = tope;
+    while (actual->siguiente != NULL) {
+        actual = actual->siguiente;
+    }
+    return actual->nodoArbol;
 }
 
 class PilaRecorrido {
@@ -414,7 +424,6 @@ pNodoArbol PilaRecorrido::VerTope() {
     if (estaVacia()) {
         return NULL;
     }
-
     return tope->nodoArbol;
 }
 
@@ -434,6 +443,14 @@ public:
     pNodoArbol CrearNodo(string valor) {
         return new NodoArbol(valor);
     }
+    void AsignarIzquierdo(pNodoArbol nodo, pNodoArbol izquierdo) {
+        if (nodo != NULL) {
+            nodo->izquierdo = izquierdo;}
+    }
+    void AsignarDerecho(pNodoArbol nodo, pNodoArbol derecho) {
+        if (nodo != NULL) {
+            nodo->derecho = derecho;}
+    }
     bool EsOperador(string valor);
     int PrioridadDentro(string operador);
     int PrioridadFuera(string operador);
@@ -442,8 +459,8 @@ public:
     void MostrarPreorden();
     void MostrarPreordenRecursivo(pNodoArbol nodo);
     void MostrarPostordenIterativo();
-    double EvaluarRecursivo(pNodoArbol nodo);
-    double Evaluar();
+    double EvaluarRecursivo(pNodoArbol nodo, PilaOperandos& operandos, ofstream& archivoEvaluacion);
+    double Evaluar(ofstream& archivoEvaluacion);
     void GraficarArbol(pNodoArbol nodo, int espacio);
     void MostrarArbol();
 };
@@ -552,57 +569,85 @@ void Arbol::MostrarPostordenIterativo() {
     cout << endl;
 }
 
-double Arbol::EvaluarRecursivo(pNodoArbol nodo) {
+double Arbol::EvaluarRecursivo(pNodoArbol nodo,
+    PilaOperandos& operandos, ofstream& archivoEvaluacion) {
     if (nodo == NULL) {
         return 0;
     }
-    if (!EsOperador(nodo->valor)) {
+	if (!EsOperador(nodo->valor)) { //Si es un numero,se coloca en la pila de operandos
+		operandos.Push(nodo);
         return atof(nodo->valor.c_str());
     }
-    double izquierdo = EvaluarRecursivo(nodo->izquierdo);
-    double derecho = EvaluarRecursivo(nodo->derecho);
+    double izquierdo = EvaluarRecursivo(nodo->izquierdo, operandos, archivoEvaluacion);
+    double derecho = EvaluarRecursivo(nodo->derecho, operandos, archivoEvaluacion);
+
+	pNodoArbol nodoDerecho = operandos.Pop();// se desapila el nodo derecho de la pila de operandos
+    if (nodoDerecho != NULL) {
+        archivoEvaluacion
+            << "Desapila: "
+            << nodoDerecho->valor
+            << endl;
+    }
+
+	pNodoArbol nodoIzquierdo = operandos.Pop(); // se desapila el nodo izquierdo de la pila de operandos
+    if (nodoIzquierdo != NULL) {
+        archivoEvaluacion
+            << "Desapila: "
+            << nodoIzquierdo->valor
+            << endl;
+    }
+
+    double resultado = 0;
     if (nodo->valor == "+") {
-        return izquierdo + derecho;
+        resultado = izquierdo + derecho;
     }
-    if (nodo->valor == "-") {
-        return izquierdo - derecho;
+    else if (nodo->valor == "-") {
+        resultado = izquierdo - derecho;
     }
-    if (nodo->valor == "*") {
-        return izquierdo * derecho;
+    else if (nodo->valor == "*") {
+        resultado = izquierdo * derecho;
     }
-    if (nodo->valor == "/") {
+    else if (nodo->valor == "/") {
         if (derecho == 0) {
             cout << "Error: division entre cero" << endl;
-            return 0;
+            resultado = 0;
         }
-        return izquierdo / derecho;
+        else {
+            resultado = izquierdo / derecho;
+        }
     }
-    if (nodo->valor == "^") {
-        double resultado = 1;
+    else if (nodo->valor == "^") {
+        resultado = 1;
         for (int i = 0; i < derecho; i++) {
             resultado = resultado * izquierdo;
         }
-        return resultado;
     }
-    return 0;
+    // El resultado se vuelve un operando para continuar la evaluacion
+    pNodoArbol nodoResultado =
+        new NodoArbol(to_string(resultado));
+    operandos.Push(nodoResultado);
+    return resultado;
 }
 
-double Arbol::Evaluar() {
-    return EvaluarRecursivo(raiz);
+double Arbol::Evaluar(ofstream& archivoEvaluacion) {
+    PilaOperandos operandos;
+    return EvaluarRecursivo(
+        raiz,operandos,archivoEvaluacion);
 }
 
 void Arbol::GraficarArbol(pNodoArbol nodo, int espacio) {
     if (nodo == NULL) {
         return;
     }
-    espacio += 5;
-    GraficarArbol(nodo->derecho, espacio);
-    cout << endl;
-    for (int i = 5; i < espacio; i++) {
+    // Primero muestra el subarbol derecho
+    GraficarArbol(nodo->derecho, espacio + 5);
+    // Muestra el nodo actual
+    for (int i = 0; i < espacio; i++) {
         cout << " ";
     }
     cout << nodo->valor << endl;
-    GraficarArbol(nodo->izquierdo, espacio);
+    // Luego muestra el subarbol izquierdo
+    GraficarArbol(nodo->izquierdo, espacio + 5);
 }
 
 void Arbol::MostrarArbol() {
@@ -613,10 +658,11 @@ void ProcesarExpresion(pnodo expresion, Arbol& arbol, ofstream& archivoComparaci
     PilaOperadores operadores;
     PilaOperandos operandos;
     pnodo actual = expresion;
+
     while (actual != NULL) {
         string valor = actual->ObtenerValor();
         // Si es un numero, se coloca en la pila de operandos
-        if (!arbol.EsOperador(valor) && valor != "(" && valor != ")") {
+        if (EsDigito(valor[0])) {
             pNodoArbol nuevo = arbol.CrearNodo(valor);
             operandos.Push(nuevo);
         }
@@ -628,10 +674,7 @@ void ProcesarExpresion(pnodo expresion, Arbol& arbol, ofstream& archivoComparaci
         // Si es un parentesis de cierre
         else if (valor == ")") {
             while (!operadores.estaVacia() &&
-                    operadores.VerTope()->ObtenerValor() != "(") {
-                archivoComparaciones << "Comparacion: "
-                                        << operadores.VerTope()->ObtenerValor()
-                                        << " con )" << endl;
+                operadores.VerTope()->ObtenerValor() != "(") {
                 arbol.AplicarOperador(operadores, operandos);
             }
             if (!operadores.estaVacia() &&
@@ -640,32 +683,92 @@ void ProcesarExpresion(pnodo expresion, Arbol& arbol, ofstream& archivoComparaci
             }
         }
         // Si es un operador
-        else {
+        else if (arbol.EsOperador(valor)) {
             pNodoArbol nuevo = arbol.CrearNodo(valor);
-            while (!operadores.estaVacia() &&
-                    operadores.VerTope()->ObtenerValor() != "(" &&
-                    arbol.PrioridadDentro(operadores.VerTope()->ObtenerValor())
-                    >= arbol.PrioridadFuera(valor)) {
+            archivoComparaciones
+                << "Lee "
+                << valor
+                << endl;
+
+            // Si la pila de operadores esta vacia
+            if (operadores.estaVacia()) {
+                archivoComparaciones
+                    << "Pila vacia -> Push "
+                    << valor
+                    << endl;
+            }
+            else {
+                // Compara el operador actual con los operadores de la pila
+                while (!operadores.estaVacia() &&
+                    operadores.VerTope()->ObtenerValor() != "(") {
+                    string operadorPila =
+                        operadores.VerTope()->ObtenerValor();
+                    int prioridadPila =
+                        arbol.PrioridadDentro(operadorPila);
+                    int prioridadActual =
+                        arbol.PrioridadFuera(valor);
                     archivoComparaciones
                         << "Comparar "
                         << valor
                         << " con "
-                        << operadores.VerTope()->ObtenerValor()
+                        << operadorPila
                         << endl;
-                    archivoComparaciones
-                        << "Se desapila "
-                        << operadores.VerTope()->ObtenerValor()
-                        << endl;
-                    arbol.AplicarOperador(operadores, operandos);
+                    // El operador actual tiene mayor prioridad
+                    if (prioridadActual > prioridadPila) {
+                        archivoComparaciones
+                            << "    "
+                            << prioridadActual
+                            << " > "
+                            << prioridadPila
+                            << " -> Push "
+                            << valor
+                            << endl;
+                        break;
+                    }
+
+                    // El operador de la pila tiene mayor prioridad
+                    else if (prioridadActual < prioridadPila) {
+                        archivoComparaciones
+                            << "    "
+                            << prioridadActual
+                            << " < "
+                            << prioridadPila
+                            << " -> Pop "
+                            << operadorPila
+                            << endl;
+                        arbol.AplicarOperador(
+                            operadores,
+                            operandos);
+                    }
+
+                    // Tienen la misma prioridad
+                    else {
+                        archivoComparaciones
+                            << "    "
+                            << prioridadActual
+                            << " = "
+                            << prioridadPila
+                            << " -> Pop "
+                            << operadorPila
+                            << endl;
+                        arbol.AplicarOperador(
+                            operadores,
+                            operandos);
+                    }
+                }
             }
+            // Se coloca el operador actual en la pila
             operadores.Push(nuevo);
         }
         actual = actual->ObtenerSiguiente();
     }
     // Aplicar los operadores que quedaron en la pila
     while (!operadores.estaVacia()) {
-        arbol.AplicarOperador(operadores, operandos);
+        arbol.AplicarOperador(
+            operadores,
+            operandos);
     }
+    // La raiz es el ultimo que queda en la pila de operandos
     if (!operandos.estaVacia()) {
         arbol.AsignarRaiz(operandos.Pop());
     }
@@ -689,7 +792,7 @@ pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte s
             numero = numero + caracter; // construye el numero completo
         }
         else if (EsOperador(caracter)) {
-            if (numero != "") {
+			if (numero != "") { // Si hay un numero acumulado, se agrega a la lista antes de agregar el operador
                 listaExpresion->InsertarFinal(numero);
                 numero = "";
             }
@@ -697,7 +800,7 @@ pnodo LeerArchivo(string rutaArchivo) { // Lee un archivo de texto y convierte s
             listaExpresion->InsertarFinal(simbolo);
         }
     }
-    if (numero != "") {
+    if (numero != "") { //Agrega el ultimo numero del archivo
         listaExpresion->InsertarFinal(numero);
     }
     archivo.close();
@@ -732,41 +835,69 @@ int main() {
         cout << "No se pudo crear el archivo de evaluacion." << endl;
         return 1;
     }
+    //Lee los cinco archivos
     for (int i = 0; i < 5; i++) {
         pnodo expresion = LeerArchivo(nombresArchivos[i]);
         if (expresion != NULL) {
-            archivos.insertarFinal(expresion);
-            Arbol arbol;
-            archivoComparaciones << "Archivo: "
-                                    << nombresArchivos[i] << endl;
-            ProcesarExpresion(
-                expresion,
-                arbol,
-                archivoComparaciones
-            );
-            archivoEvaluacion
-                << nombresArchivos[i]
-                << " = "
-                << arbol.Evaluar()
-                << endl;
-            cout << endl;
-            cout << "Expresion original: ";
-            MostrarExpresionOriginal(expresion);
-            cout << "Recorrido inorder iterativo: ";
-            arbol.MostrarInordenIterativo();
-            cout << "Recorrido preorden recursivo: ";
-            arbol.MostrarPreorden();
-            cout << "Recorrido postorden iterativo: ";
-            arbol.MostrarPostordenIterativo();
-            cout << "Resultado: "<< arbol.Evaluar()<< endl;
-            cout << "Arbol:" << endl;
-            arbol.MostrarArbol();
+            archivos.insertarFinal(expresion); //Aquí es donde cambia si se inserta al frente o al final
         }
+    }
+    //Mostrar la cola antes de procesar
+    cout << endl;
+    cout << "Archivos cargados en la bicola:"
+        << endl;
+    archivos.mostrar();
+
+	//Procesa cada archivo de la bicola
+    for (int i = 0; i < TAM; i++) {
+		pnodo expresion = archivos.eliminarFrente(); //Aquí se cambia si se elimina del frente o del final
+        if (expresion == NULL) {
+            continue;
+        }
+        Arbol arbol;
+        //Comparaciones
+        archivoComparaciones
+            << "--------------------------------" << endl;
+        archivoComparaciones << "Archivo: " << nombresArchivos[i] << endl;
+        archivoComparaciones
+            << "--------------------------------" << endl;
+
+        // Construir el árbol
+        ProcesarExpresion(
+            expresion,
+            arbol,
+            archivoComparaciones);
+
+        //Evaluar
+        archivoEvaluacion
+            << "--------------------------------" << endl
+            << "Archivo: "
+            << nombresArchivos[i]
+            << endl
+            << "--------------------------------" << endl;
+        double resultado = arbol.Evaluar(archivoEvaluacion);
+        archivoEvaluacion << endl;
+
+        //Mostrar resultados
+        cout << endl;
+        cout << "Archivo: "<< nombresArchivos[i]<< endl;
+        cout << "Expresion original: ";
+        MostrarExpresionOriginal(expresion);
+        cout << "Recorrido inorder iterativo: ";
+        arbol.MostrarInordenIterativo();
+        cout << "Recorrido preorden recursivo: ";
+        arbol.MostrarPreorden();
+        cout << "Recorrido postorden iterativo: ";
+        arbol.MostrarPostordenIterativo();
+        cout << "Resultado: " << resultado << endl;
+        cout << "Arbol:" << endl;
+        arbol.MostrarArbol();
+        cout << endl;
     }
     archivoComparaciones.close();
     archivoEvaluacion.close();
     cout << endl;
-    cout << "Archivos cargados en la bicola:" << endl;
+    cout << "Proceso terminado" << endl;
     archivos.mostrar();
     return 0;
 }

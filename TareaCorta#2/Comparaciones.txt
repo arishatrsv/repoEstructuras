@@ -1,0 +1,52 @@
+--------------------------------
+Archivo: Arch1.txt
+--------------------------------
+Lee -
+Lee +
+Pila vacia -> Push +
+Lee -
+Comparar - con +
+    1 = 1 -> Pop +
+Lee -
+Lee *
+Comparar * con -
+    2 > 1 -> Push *
+--------------------------------
+Archivo: Arch2.txt
+--------------------------------
+Lee -
+Lee *
+Comparar * con -
+    2 > 1 -> Push *
+Lee +
+Pila vacia -> Push +
+Lee +
+Lee /
+--------------------------------
+Archivo: Arch3.txt
+--------------------------------
+Lee ^
+Lee -
+Lee /
+--------------------------------
+Archivo: Arch4.txt
+--------------------------------
+Lee *
+Lee /
+Lee ^
+Lee /
+Pila vacia -> Push /
+Lee -
+Lee /
+Comparar / con -
+    2 > 1 -> Push /
+--------------------------------
+Archivo: Arch5.txt
+--------------------------------
+Lee ^
+Lee /
+Comparar / con ^
+    2 < 3 -> Pop ^
+Lee ^
+Comparar ^ con /
+    4 > 2 -> Push ^
