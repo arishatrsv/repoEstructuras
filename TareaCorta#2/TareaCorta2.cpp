@@ -226,18 +226,23 @@ typedef NodoArbol* pNodoArbol;
 class NodoArbol{
 private:
     string valor;
+    string resultado;
     pNodoArbol izquierdo;
     pNodoArbol derecho;
 
 public:
     NodoArbol(string pValor){
         valor = pValor;
+        resultado = "";
         izquierdo = NULL;
         derecho = NULL;
     }
     string ObtenerValor() {
     return valor;
-}
+    }
+    string ObtenerResultado() {
+        return resultado;
+    }
     friend class Arbol;
 };
 
@@ -452,6 +457,7 @@ public:
             nodo->derecho = derecho;}
     }
     bool EsOperador(string valor);
+    double ConvertirNumero(string numero);
     int PrioridadDentro(string operador);
     int PrioridadFuera(string operador);
     void AplicarOperador(PilaOperadores& operadores,PilaOperandos& operandos);
@@ -471,6 +477,14 @@ bool Arbol::EsOperador(string valor) {
         valor == "*" ||
         valor == "/" ||
         valor == "^";
+}
+
+double Arbol::ConvertirNumero(string numero) {
+    double resultado = 0;
+    for (int i = 0; i < numero.length(); i++) {
+        resultado = resultado * 10 + (numero[i] - '0');
+    }
+    return resultado;
 }
 
 int Arbol::PrioridadDentro(string operador) {
@@ -506,7 +520,14 @@ int Arbol::PrioridadFuera(string operador) {
 }
 
 void Arbol::AplicarOperador(PilaOperadores& operadores, PilaOperandos& operandos) {
+    if (operadores.estaVacia() || operandos.estaVacia()) {
+        return;
+    }
     pNodoArbol derecho = operandos.Pop();
+    if (operandos.estaVacia()) {
+        operandos.Push(derecho);
+        return;
+    }
     pNodoArbol izquierdo = operandos.Pop();
     pNodoArbol operador = operadores.Pop();
     if (derecho == NULL || izquierdo == NULL || operador == NULL) {
@@ -576,26 +597,42 @@ double Arbol::EvaluarRecursivo(pNodoArbol nodo,
     }
 	if (!EsOperador(nodo->valor)) { //Si es un numero,se coloca en la pila de operandos
 		operandos.Push(nodo);
-        return atof(nodo->valor.c_str());
+        return ConvertirNumero(nodo->valor);
     }
     double izquierdo = EvaluarRecursivo(nodo->izquierdo, operandos, archivoEvaluacion);
     double derecho = EvaluarRecursivo(nodo->derecho, operandos, archivoEvaluacion);
 
-	pNodoArbol nodoDerecho = operandos.Pop();// se desapila el nodo derecho de la pila de operandos
-    if (nodoDerecho != NULL) {
+pNodoArbol nodoDerecho = operandos.Pop();
+if (nodoDerecho != NULL) {
+    if (nodoDerecho->resultado != "") {
+        archivoEvaluacion
+            << "Desapila: "
+            << nodoDerecho->resultado
+            << endl;
+    }
+    else {
         archivoEvaluacion
             << "Desapila: "
             << nodoDerecho->valor
             << endl;
     }
+}
 
-	pNodoArbol nodoIzquierdo = operandos.Pop(); // se desapila el nodo izquierdo de la pila de operandos
-    if (nodoIzquierdo != NULL) {
+pNodoArbol nodoIzquierdo = operandos.Pop();
+if (nodoIzquierdo != NULL) {
+    if (nodoIzquierdo->resultado != "") {
+        archivoEvaluacion
+            << "Desapila: "
+            << nodoIzquierdo->resultado
+            << endl;
+    }
+    else {
         archivoEvaluacion
             << "Desapila: "
             << nodoIzquierdo->valor
             << endl;
     }
+}
 
     double resultado = 0;
     if (nodo->valor == "+") {
@@ -623,9 +660,8 @@ double Arbol::EvaluarRecursivo(pNodoArbol nodo,
         }
     }
     // El resultado se vuelve un operando para continuar la evaluacion
-    pNodoArbol nodoResultado =
-        new NodoArbol(to_string(resultado));
-    operandos.Push(nodoResultado);
+    nodo->resultado = to_string(resultado);
+    operandos.Push(nodo);
     return resultado;
 }
 
@@ -667,21 +703,40 @@ void ProcesarExpresion(pnodo expresion, Arbol& arbol, ofstream& archivoComparaci
             operandos.Push(nuevo);
         }
         // Si es un parentesis de apertura
-        else if (valor == "(") {
-            pNodoArbol nuevo = arbol.CrearNodo(valor);
-            operadores.Push(nuevo);
+    else if (valor == "(") {
+        pNodoArbol nuevo = arbol.CrearNodo(valor);
+        archivoComparaciones
+            << "Lee ("
+            << endl;
+        archivoComparaciones
+            << "Push ("
+            << endl;
+        operadores.Push(nuevo);
+    }
+            // Si es un parentesis de cierre
+    else if (valor == ")") {
+        archivoComparaciones
+            << "Lee )"
+            << endl;
+        while (!operadores.estaVacia() &&
+            operadores.VerTope()->ObtenerValor() != "(") {
+            archivoComparaciones
+                << "Pop "
+                << operadores.VerTope()->ObtenerValor()
+                << " por )"
+                << endl;
+            arbol.AplicarOperador(
+                operadores,
+                operandos);
         }
-        // Si es un parentesis de cierre
-        else if (valor == ")") {
-            while (!operadores.estaVacia() &&
-                operadores.VerTope()->ObtenerValor() != "(") {
-                arbol.AplicarOperador(operadores, operandos);
-            }
-            if (!operadores.estaVacia() &&
-                operadores.VerTope()->ObtenerValor() == "(") {
-                operadores.Pop();
-            }
+        if (!operadores.estaVacia() &&
+            operadores.VerTope()->ObtenerValor() == "(") {
+            operadores.Pop();
+            archivoComparaciones
+                << "Pop ("
+                << endl;
         }
+    }
         // Si es un operador
         else if (arbol.EsOperador(valor)) {
             pNodoArbol nuevo = arbol.CrearNodo(valor);

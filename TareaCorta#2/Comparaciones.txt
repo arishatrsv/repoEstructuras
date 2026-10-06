@@ -1,48 +1,113 @@
 --------------------------------
 Archivo: Arch1.txt
 --------------------------------
+Lee (
+Push (
 Lee -
+Lee )
+Pop - por )
+Pop (
 Lee +
 Pila vacia -> Push +
 Lee -
 Comparar - con +
     1 = 1 -> Pop +
+Lee (
+Push (
 Lee -
 Lee *
 Comparar * con -
     2 > 1 -> Push *
+Lee )
+Pop * por )
+Pop - por )
+Pop (
 --------------------------------
 Archivo: Arch2.txt
 --------------------------------
+Lee (
+Push (
 Lee -
 Lee *
 Comparar * con -
     2 > 1 -> Push *
+Lee )
+Pop * por )
+Pop - por )
+Pop (
 Lee +
 Pila vacia -> Push +
+Lee (
+Push (
 Lee +
+Lee (
+Push (
 Lee /
+Lee )
+Pop / por )
+Pop (
+Lee )
+Pop + por )
+Pop (
 --------------------------------
 Archivo: Arch3.txt
 --------------------------------
+Lee (
+Push (
+Lee (
+Push (
 Lee ^
+Lee )
+Pop ^ por )
+Pop (
 Lee -
+Lee (
+Push (
 Lee /
+Lee )
+Pop / por )
+Pop (
+Lee )
+Pop - por )
+Pop (
 --------------------------------
 Archivo: Arch4.txt
 --------------------------------
+Lee (
+Push (
 Lee *
+Lee (
+Push (
+Lee (
+Push (
 Lee /
+Lee )
+Pop / por )
+Pop (
 Lee ^
+Lee )
+Pop ^ por )
+Pop (
+Lee )
+Pop * por )
+Pop (
 Lee /
 Pila vacia -> Push /
+Lee (
+Push (
 Lee -
 Lee /
 Comparar / con -
     2 > 1 -> Push /
+Lee )
+Pop / por )
+Pop - por )
+Pop (
 --------------------------------
 Archivo: Arch5.txt
 --------------------------------
+Lee (
+Push (
 Lee ^
 Lee /
 Comparar / con ^
@@ -50,3 +115,7 @@ Comparar / con ^
 Lee ^
 Comparar ^ con /
     4 > 2 -> Push ^
+Lee )
+Pop ^ por )
+Pop / por )
+Pop (
