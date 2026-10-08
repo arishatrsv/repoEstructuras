@@ -4,10 +4,18 @@
 #include <iostream>  // entrada y salida de datos
 #include <fstream>   // manejo y lectura de archivos de texto
 #include <string>    // manejo de cadenas de texto
+#include <windows.h>
 
 using namespace std;
 
 #define TAM 5 // Tamano estatico para la Bicola
+
+void gotoxy(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
+}
 
 class nodo;
 class lista;
@@ -467,7 +475,9 @@ public:
     void MostrarPostordenIterativo();
     double EvaluarRecursivo(pNodoArbol nodo, PilaOperandos& operandos, ofstream& archivoEvaluacion);
     double Evaluar(ofstream& archivoEvaluacion);
-    void GraficarArbol(pNodoArbol nodo, int espacio);
+    int Altura(pNodoArbol nodo);
+    void ImprimirNivel(pNodoArbol nodo, int posicion, int fila, int separacion);
+    void GraficarArbol();
     void MostrarArbol();
 };
 
@@ -671,23 +681,62 @@ double Arbol::Evaluar(ofstream& archivoEvaluacion) {
         raiz,operandos,archivoEvaluacion);
 }
 
-void Arbol::GraficarArbol(pNodoArbol nodo, int espacio) {
+int Arbol::Altura(pNodoArbol nodo) {
+    if (nodo == NULL) {
+        return 0;
+    }
+    int alturaIzquierda = Altura(nodo->izquierdo);
+    int alturaDerecha = Altura(nodo->derecho);
+    if (alturaIzquierda > alturaDerecha) {
+        return alturaIzquierda + 1;
+    }
+    return alturaDerecha + 1;
+}
+
+void Arbol::ImprimirNivel(pNodoArbol nodo, int posicion, int fila, int separacion) {
     if (nodo == NULL) {
         return;
     }
-    // Primero muestra el subarbol derecho
-    GraficarArbol(nodo->derecho, espacio + 5);
-    // Muestra el nodo actual
-    for (int i = 0; i < espacio; i++) {
-        cout << " ";
+    gotoxy(posicion, fila);
+    cout << nodo->valor;
+    // Conector hacia el hijo izquierdo, en la fila intermedia
+    if (nodo->izquierdo != NULL) {
+        gotoxy(posicion - separacion / 2, fila + 1);
+        cout << "/";
     }
-    cout << nodo->valor << endl;
-    // Luego muestra el subarbol izquierdo
-    GraficarArbol(nodo->izquierdo, espacio + 5);
+    // Conector hacia el hijo derecho
+    if (nodo->derecho != NULL) {
+        gotoxy(posicion + separacion / 2, fila + 1);
+        cout << "\\";
+    }
+    ImprimirNivel(nodo->izquierdo, posicion - separacion, fila + 2, separacion / 2);
+    ImprimirNivel(nodo->derecho, posicion + separacion, fila + 2, separacion / 2);
+}
+
+void Arbol::GraficarArbol() {
+    if (raiz == NULL) {
+        return;
+    }
+    int altura = Altura(raiz);
+    int separacion = 1;
+    for (int i = 1; i < altura; i++) {
+        separacion = separacion * 2;
+    }
+    int posicionInicial = separacion * 2;
+    // Reserva espacio en la consola antes de dibujar
+    for (int i = 0; i < altura * 2; i++) {
+        cout << endl;
+    }
+    CONSOLE_SCREEN_BUFFER_INFO informacion;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &informacion);
+    int filaInicial = informacion.dwCursorPosition.Y - altura * 2;
+    ImprimirNivel(raiz, posicionInicial, filaInicial, separacion);
+    // Cursor debajo del arbol
+    gotoxy(0, filaInicial + altura * 2);
 }
 
 void Arbol::MostrarArbol() {
-    GraficarArbol(raiz, 0);
+    GraficarArbol();
 }
 
 void ProcesarExpresion(pnodo expresion, Arbol& arbol, ofstream& archivoComparaciones) {
