@@ -4,7 +4,7 @@
 #include <iostream>  // entrada y salida de datos
 #include <fstream>   // manejo y lectura de archivos de texto
 #include <string>    // manejo de cadenas de texto
-#include <windows.h>
+#include <windows.h> // para dibujar el arbol en la consola
 
 using namespace std;
 
@@ -19,193 +19,237 @@ void gotoxy(int x, int y) {
 
 class nodo;
 class lista;
-typedef nodo* pnodo; // Alias para puntero a nodo (pnodo = nodo*)
 
+// Alias que simplifica la escritura de punteros a objetos de tipo nodo.
+// Equivale a: pnodo es un sinónimo de nodo*.
+typedef nodo* pnodo;
+
+// Indica si el carácter representa un dígito decimal.
 bool EsDigito(char c) {
     return (c >= '0' && c <= '9');
 }
 
+// Detecta espacios, tabulaciones y saltos de línea leídos del archivo.
 bool EsEspacio(char c) { // Comprueba manualmente espacios en blanco o saltos de linea
     return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
 }
 
+// Determina si el carácter pertenece a los operadores o paréntesis de la expresión.
 bool EsOperador(char c) { // Valida si un caracter corresponde a un operador matematico
     return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')');
-} // || es or, retorna true o false. 
+} // || es el operador lógico OR; devuelve true cuando se cumple al menos una condición.
 
+// Cada nodo almacena una parte de la expresión y enlaza con el siguiente nodo.
 class nodo {
 public:
-    nodo(string pvalor) { // Constructor con un valor, puntero a nulo
+    // Crea un nodo con su valor y deja el enlace en NULL.
+    nodo(string pvalor) {
         valor = pvalor;
-        siguiente = NULL; // no apunta a ningun nodo
+        siguiente = NULL; // El nodo no tiene sucesor.
     }
-    nodo(string pvalor, nodo* sigNodo) { // Constructor con valor y puntero al siguiente
+
+    // Crea un nodo y conecta directamente con otro nodo indicado.
+    nodo(string pvalor, nodo* sigNodo) {
         valor = pvalor;
-        siguiente = sigNodo; // apunta al nodo indicado
+        siguiente = sigNodo; // Apunta al nodo recibido como argumento.
     }
+
+    // Devuelve el contenido almacenado en el nodo.
     string ObtenerValor() {
-    return valor;
-}
+        return valor;
+    }
+
+    // Devuelve el puntero al nodo siguiente, o NULL si no existe.
     pnodo ObtenerSiguiente() {
-    return siguiente;
-}
+        return siguiente;
+    }
 
 private:
-    string valor;     // almacena la expresion, operador o numero
-    nodo* siguiente;  // guarda direccion del siguiente nodo
-    friend class lista; // permite que la clase lista acceda a los miembros privados
-    friend class Bicola; // permite que acceda a los miembros privados
+    string valor;     // Token de la expresión: número, operador o paréntesis.
+    nodo* siguiente;  // Dirección del siguiente nodo de la lista.
+
+    // Permite que lista y Bicola accedan a los miembros privados del nodo.
+    friend class lista;
+    friend class Bicola;
 };
 
+// Lista enlazada simple que guarda los tokens de una expresión.
 class lista {
 public:
-    lista() { // Construye la lista vacia
+    // Crea una lista vacía inicializando el primer nodo en NULL.
+    lista() {
         primero = NULL;
     }
-    bool ListaVacia() { return primero == NULL; } // Revisa si la lista esta vacia
+
+    // Indica si la lista no contiene ningún nodo.
+    bool ListaVacia() { return primero == NULL; }
+
+    // Inserta un valor al inicio o al final de la lista.
     void InsertarInicio(string valor);
     void InsertarFinal(string valor);
+
+    // Muestra todos los valores de la lista desde el primero.
     void Mostrar();
-    pnodo ObtenerPrimero() { return primero; } // Retorna la referencia al primer nodo
+
+    // Devuelve el puntero al primer nodo de la lista.
+    pnodo ObtenerPrimero() { return primero; }
 
 private:
-    pnodo primero; // Puntero al primer elemento de la lista
+    pnodo primero; // Primer elemento de la lista; NULL cuando está vacía.
 };
 
-void lista::InsertarInicio(string valor) { // Crea un nuevo nodo al inicio 
+// Inserta un nuevo nodo como primer elemento.
+void lista::InsertarInicio(string valor) {
     if (ListaVacia()) {
-        primero = new nodo(valor); // crea el primer nodo de la lista
+        primero = new nodo(valor); // La lista queda con un único nodo.
     }
     else {
-        primero = new nodo(valor, primero); // conecta el nuevo nodo con el nodo anterior
+        // El nuevo nodo apunta al anterior primero y se convierte en el primero.
+        primero = new nodo(valor, primero);
     }
 }
 
-void lista::InsertarFinal(string valor) { // Agrega un elemento al final de la lista
+// Inserta un valor al final recorriendo la lista hasta el último nodo.
+void lista::InsertarFinal(string valor) {
     if (ListaVacia())
         primero = new nodo(valor);
     else {
-        pnodo nodoActual = primero;
-        while (nodoActual->siguiente != NULL) // Avanza hasta el ultimo nodo
+        pnodo nodoActual = primero; // Comienza en el primer elemento.
+        while (nodoActual->siguiente != NULL) // Avanza hasta el último nodo.
             nodoActual = nodoActual->siguiente;
-        nodoActual->siguiente = new nodo(valor); // Conecta el nuevo nodo al final
+        nodoActual->siguiente = new nodo(valor); // Enlaza el nuevo nodo al final.
     }
 }
 
-void lista::Mostrar() { // Imprime los elementos de la lista en orden
-    pnodo nodoActual; // Puntero que recorre la lista
+// Imprime todos los valores de la lista en orden de enlace.
+void lista::Mostrar() {
+    pnodo nodoActual; // Puntero auxiliar usado para recorrer los nodos.
     if (primero == NULL)
         cout << "No hay elementos para mostrar" << endl;
     else {
-        nodoActual = primero; // Comienza a recorrer desde el primer nodo
-        while (nodoActual) {  // Continua mientras exista un nodo
+        nodoActual = primero; // Comienza desde el primer nodo.
+        while (nodoActual) { // Continúa mientras exista un nodo válido.
             cout << nodoActual->valor << " ";
-            nodoActual = nodoActual->siguiente; // Avanza al siguiente nodo
+            nodoActual = nodoActual->siguiente; // Avanza al siguiente nodo.
         }
         cout << endl;
     }
 }
 
+// Bicola circular de tamaño fijo que almacena punteros a listas de expresión.
 class Bicola {
 private:
-    pnodo datos[TAM]; // Guarda las referencias a las listas creadas por archivo
-    int frente;
-    int fondo;
-    int cantidad;
+    pnodo datos[TAM]; // Posiciones disponibles para almacenar nodos de inicio de lista.
+    int frente;       // Índice del elemento que se elimina por el frente.
+    int fondo;        // Índice del elemento que se elimina por el final.
+    int cantidad;     // Número de elementos almacenados actualmente.
 
 public:
-    Bicola() { // Constructor de la bicola
+    // Inicializa una bicola vacía y las posiciones del arreglo en NULL.
+    Bicola() {
         frente = 0;
-        fondo = -1; // Inicializa el fondo en -1 porque la bicola esta vacia
-        cantidad = 0; // Inicializa la cantidad de elementos en 0
-        for (int i = 0; i < TAM; i++) { // Recorre todas las posiciones del arreglo
-            datos[i] = NULL; // Inicializa cada posicion del arreglo como vacia
+        fondo = -1; // Indica que no hay elementos en la bicola.
+        cantidad = 0;
+        for (int i = 0; i < TAM; i++) { // Recorre todas las posiciones del arreglo.
+            datos[i] = NULL; // Cada posición comienza vacía.
         }
     }
 
+    // Comprueba si la bicola contiene cero elementos.
     bool estaVacia() {
         return cantidad == 0;
     }
 
+    // Comprueba si el número de elementos alcanza el tamaño máximo.
     bool estaLlena() {
         return cantidad == TAM;
     }
 
+    // Inserta un elemento por el frente, desplazando el índice circularmente.
     void insertarFrente(pnodo valor) {
         if (estaLlena()) {
             cout << "Bicola llena. No se puede insertar al frente.\n";
-            return; // Sale del metodo sin insertar
+            return; // No modifica la bicola cuando está llena.
         }
-        if (estaVacia()) { // Verifica si es la primera insercion
+        if (estaVacia()) { // La primera inserción ocupa la posición inicial.
             frente = 0;
             fondo = 0;
         }
         else {
-            frente = (frente - 1 + TAM) % TAM; // Mueve el frente una posicion hacia atras de forma circular
+            // Mueve el frente hacia atrás empleando aritmética modular.
+            frente = (frente - 1 + TAM) % TAM;
         }
-        datos[frente] = valor; // Guarda el nodo en la posicion del frente
+        datos[frente] = valor; // Guarda el nodo en la nueva posición del frente.
         cantidad++;
     }
 
+    // Inserta un elemento por el final, desplazando el índice circularmente.
     void insertarFinal(pnodo valor) {
         if (estaLlena()) {
             cout << "Bicola llena. No se puede insertar al final.\n";
             return;
         }
-        if (estaVacia()) { // Verifica si es la primera insercion
+        if (estaVacia()) { // La primera inserción ocupa la posición inicial.
             frente = 0;
             fondo = 0;
         }
         else {
-            fondo = (fondo + 1) % TAM; // Mueve el fondo una posicion hacia adelante de forma circular
+            // Mueve el fondo hacia adelante manteniendo el orden circular.
+            fondo = (fondo + 1) % TAM;
         }
-        datos[fondo] = valor; // Guarda el nodo en la posicion del fondo
+        datos[fondo] = valor; // Guarda el nodo en la nueva posición del fondo.
         cantidad++;
     }
 
+    // Elimina y devuelve el nodo almacenado en el frente de la bicola.
     pnodo eliminarFrente() {
         if (estaVacia()) {
             cout << "Bicola vacia.\n";
             return NULL;
         }
-        pnodo lista = datos[frente]; // Guarda temporalmente el nodo del frente
-		datos[frente] = NULL; // Limpia la referencia en el arreglo
-        cantidad--; // Disminuye la cantidad de elementos
-        if (cantidad == 0) { // Verifica si se elimino el ultimo elemento
-            frente = 0; // Reinicia el frente
-            fondo = -1; // Reinicia el fondo indicando que esta vacia
+        pnodo lista = datos[frente]; // Guarda temporalmente el nodo eliminado.
+        datos[frente] = NULL; // Libera la posición para futuras inserciones.
+        cantidad--; // Disminuye la cantidad de elementos almacenados.
+        if (cantidad == 0) { // Si se removió el último elemento, se reinician índices.
+            frente = 0;
+            fondo = -1; // La bicola queda vacía.
         }
         else {
-            frente = (frente + 1) % TAM; // Mueve el frente una posicion hacia adelante de forma circular
+            // El frente avanza una posición circularmente.
+            frente = (frente + 1) % TAM;
         }
-        return lista;// Retorna el nodo que fue eliminado
+        return lista; // Retorna el nodo eliminado para que pueda procesarse.
     }
 
-    pnodo eliminarFinal() { // Elimina y retorna el nodo que esta en el final
+    // Elimina y devuelve el nodo almacenado en el final de la bicola.
+    pnodo eliminarFinal() {
         if (estaVacia()) {
             cout << "Bicola vacia.\n";
             return NULL;
         }
-        pnodo valor = datos[fondo]; // Guarda temporalmente el nodo del final
+        pnodo valor = datos[fondo]; // Guarda temporalmente el nodo eliminado.
         datos[fondo] = NULL;
         cantidad--;
-        if (cantidad == 0) { // Verifica si se elimino el ultimo elemento
-            frente = 0; // Reinicia el frente
-            fondo = -1; // Reinicia el fondo indicando que esta vacia
+        if (cantidad == 0) { // Si se removió el último elemento, se reinician índices.
+            frente = 0;
+            fondo = -1; // La bicola queda vacía.
         }
         else {
-            fondo = (fondo - 1 + TAM) % TAM; // Mueve el fondo una posicion hacia atras de forma circular
+            // El fondo retrocede en el arreglo circular.
+            fondo = (fondo - 1 + TAM) % TAM;
         }
-        return valor; // Retorna el nodo que fue eliminado
+        return valor; // Retorna el nodo eliminado.
     }
 
-    pnodo obtenerPosicion(int pos) { // Obtiene el nodo almacenado en una posicion especifica
-        if (pos >= 0 && pos < TAM) { // Verifica que la posicion este dentro del arreglo
-            return datos[pos]; // Retorna el nodo de esa posicion
+    // Devuelve el nodo ubicado en una posición del arreglo, si es válida.
+    pnodo obtenerPosicion(int pos) {
+        if (pos >= 0 && pos < TAM) { // Verifica que el índice esté dentro del rango.
+            return datos[pos]; // Retorna el nodo de esa posición.
         }
         return NULL;
     }
 
+    // Muestra cada lista almacenada, recorriendo el arreglo desde el frente.
     void mostrar() {
         if (estaVacia()) {
             cout << "Bicola vacia.\n";
@@ -213,97 +257,126 @@ public:
         }
         else {
             cout << "Contenido de la bicola:\n";
-            int i = frente; // Inicia el recorrido desde el frente
-            for (int pos = 0; pos < cantidad; pos++) { // Recorre todos los elementos de la bicola
+            int i = frente; // Comienza desde la posición del frente.
+            for (int pos = 0; pos < cantidad; pos++) { // Recorre solo los elementos existentes.
                 cout << "Posicion [" << i << "]: ";
-                pnodo actual = datos[i]; // Obtiene el primer nodo de la lista almacenada
-                while (actual != NULL) { // Recorre todos los nodos de la lista
-                    cout << actual->valor << " "; // Muestra el valor del nodo actual
+                pnodo actual = datos[i]; // Obtiene la lista almacenada en esa posición.
+                while (actual != NULL) { // Recorre todos los nodos de la lista.
+                    cout << actual->valor << " "; // Muestra el valor del nodo actual.
                     actual = actual->siguiente;
                 }
                 cout << endl;
-                i = (i + 1) % TAM; // Avanza a la siguiente posicion de forma circular
+                i = (i + 1) % TAM; // Avanza circularmente a la siguiente posición.
             }
         }
     }
 };
 
+// Declaración adelantada del nodo que forma el árbol de expresión.
 class NodoArbol;
+// Alias para apuntar con comodidad a un nodo del árbol.
 typedef NodoArbol* pNodoArbol;
 
-class NodoArbol{
+// Representa un número u operador de la expresión dentro del árbol.
+class NodoArbol {
 private:
-    string valor;
-    string resultado;
-    pNodoArbol izquierdo;
-    pNodoArbol derecho;
+    string valor;        // Texto almacenado: número, operador o paréntesis.
+    string resultado;    // Resultado parcial calculado para este operador.
+    pNodoArbol izquierdo; // Subárbol izquierdo.
+    pNodoArbol derecho;  // Subárbol derecho.
 
 public:
-    NodoArbol(string pValor){
+    // Crea un nodo con el valor indicado y sin hijos.
+    NodoArbol(string pValor) {
         valor = pValor;
         resultado = "";
         izquierdo = NULL;
         derecho = NULL;
     }
+
+    // Devuelve el contenido del nodo.
     string ObtenerValor() {
-    return valor;
+        return valor;
     }
+
+    // Devuelve el resultado calculado para este operador.
     string ObtenerResultado() {
         return resultado;
     }
+
+    // Permite que Arbol modifique los datos privados del nodo.
     friend class Arbol;
 };
 
+// Cada elemento de una pila contiene un puntero a un nodo del árbol.
 class NodoPilaArbol;
 typedef NodoPilaArbol* pNodoPilaArbol;
 class PilaRecorrido;
 
-class NodoPilaArbol{
-private: 
-	pNodoArbol nodoArbol;
-	pNodoPilaArbol siguiente;
+class NodoPilaArbol {
+private:
+    pNodoArbol nodoArbol;   // Nodo del árbol que se almacena en la pila.
+    pNodoPilaArbol siguiente; // Siguiente elemento de la pila enlazada.
+
 public:
-	NodoPilaArbol(pNodoArbol pNodo) {
-		nodoArbol = pNodo;
-		siguiente = NULL;
-	}
-	friend class PilaOperadores;
+    // Crea un elemento de pila con el nodo recibido.
+    NodoPilaArbol(pNodoArbol pNodo) {
+        nodoArbol = pNodo;
+        siguiente = NULL;
+    }
+
+    // Permite que las pilas accedan directamente a sus miembros privados.
+    friend class PilaOperadores;
     friend class PilaOperandos;
     friend class PilaRecorrido;
 };
 
+// Pila de operadores usada durante la construcción del árbol.
 class PilaOperadores {
-private: 
-    pNodoPilaArbol tope;
+private:
+    pNodoPilaArbol tope; // Último operador agregado; la pila se comporta como una lista enlazada.
+
 public:
+    // Inicializa la pila como vacía.
     PilaOperadores() { tope = NULL; }
-	bool estaVacia() { 
-        return tope == NULL; }
-    void Push(pNodoArbol nodo); //apilar
-    pNodoArbol Pop(); //desapilar
+
+    // Determina si no hay operadores almacenados.
+    bool estaVacia() {
+        return tope == NULL;
+    }
+
+    // Inserta un operador en la parte inferior de la pila.
+    void Push(pNodoArbol nodo);
+
+    // Elimina y devuelve el último operador insertado.
+    pNodoArbol Pop();
+
+    // Consulta el último operador sin eliminarlo.
     pNodoArbol VerTope();
 };
 
-void PilaOperadores::Push(pNodoArbol nodo) { //Push= Agrega un nuevo elemento al tope de la pila
+// Agrega un operador al final de la pila, de modo que el último agregado quede acceso no por el puntero tope, sino por el recorrido hasta el último nodo.
+void PilaOperadores::Push(pNodoArbol nodo) {
     pNodoPilaArbol nuevo = new NodoPilaArbol(nodo);
     if (estaVacia()) {
         tope = nuevo;
     }
     else {
-            pNodoPilaArbol actual = tope;
-            while (actual->siguiente != NULL) {
-                actual = actual->siguiente;
-            }
-            actual->siguiente = nuevo;
+        pNodoPilaArbol actual = tope;
+        while (actual->siguiente != NULL) {
+            actual = actual->siguiente;
         }
+        actual->siguiente = nuevo;
     }
+}
 
-pNodoArbol PilaOperadores::Pop() { //Pop= Saca y retorna el elemento que esta en el tope
-    if (estaVacia()){
+// Elimina el último elemento de la pila y devuelve el nodo del árbol que contenía.
+pNodoArbol PilaOperadores::Pop() {
+    if (estaVacia()) {
         return NULL;
     }
 
-    if (tope->siguiente == NULL){
+    if (tope->siguiente == NULL) {
         pNodoArbol nodo = tope->nodoArbol;
         delete tope;
         tope = NULL;
@@ -320,8 +393,9 @@ pNodoArbol PilaOperadores::Pop() { //Pop= Saca y retorna el elemento que esta en
     return nodo;
 }
 
-pNodoArbol PilaOperadores::VerTope(){
-    if (estaVacia()){
+// Consulta el último operador almacenado sin eliminarlo.
+pNodoArbol PilaOperadores::VerTope() {
+    if (estaVacia()) {
         return NULL;
     }
     pNodoPilaArbol actual = tope;
@@ -331,23 +405,34 @@ pNodoArbol PilaOperadores::VerTope(){
     return actual->nodoArbol;
 }
 
+// Pila de operandos usada para almacenar los subárboles ya identificados.
 class PilaOperandos {
 private:
-    pNodoPilaArbol tope;
+    pNodoPilaArbol tope; // Último operando agregado.
 
 public:
-    PilaOperandos(){
+    // Inicializa la pila como vacía.
+    PilaOperandos() {
         tope = NULL;
     }
+
+    // Determina si no hay operandos almacenados.
     bool estaVacia() {
         return tope == NULL;
     }
-    void Push(pNodoArbol nodo); //apilar
-    pNodoArbol Pop(); //desapilar
-    pNodoArbol VerTope();   
+
+    // Inserta un operando en la parte inferior de la pila.
+    void Push(pNodoArbol nodo);
+
+    // Elimina y devuelve el último operando insertado.
+    pNodoArbol Pop();
+
+    // Consulta el último operando sin eliminarlo.
+    pNodoArbol VerTope();
 };
 
-void PilaOperandos::Push(pNodoArbol nodo) { //Push= Agrega un nuevo elemento al tope de la pila
+// Agrega un operando al final de la pila, utilizando el mismo esquema enlazado.
+void PilaOperandos::Push(pNodoArbol nodo) {
     pNodoPilaArbol nuevo = new NodoPilaArbol(nodo);
     if (estaVacia()) {
         tope = nuevo;
@@ -361,7 +446,8 @@ void PilaOperandos::Push(pNodoArbol nodo) { //Push= Agrega un nuevo elemento al 
     }
 }
 
-pNodoArbol PilaOperandos::Pop() { //Pop= Saca y retorna el elemento que esta en el tope
+// Elimina el último operando y devuelve el subárbol asociado.
+pNodoArbol PilaOperandos::Pop() {
     if (estaVacia()) {
         return NULL;
     }
@@ -382,6 +468,7 @@ pNodoArbol PilaOperandos::Pop() { //Pop= Saca y retorna el elemento que esta en 
     return nodo;
 }
 
+// Consulta el último operando sin eliminarlo.
 pNodoArbol PilaOperandos::VerTope() {
     if (estaVacia()) {
         return NULL;
@@ -393,19 +480,23 @@ pNodoArbol PilaOperandos::VerTope() {
     return actual->nodoArbol;
 }
 
+// Pila de recorrido que permite aplicar algoritmos iterativos de recorrido.
 class PilaRecorrido {
 private:
-    pNodoPilaArbol tope;
+    pNodoPilaArbol tope; // Nodo más recientemente agregado.
 
 public:
+    // Inicializa la pila vacía.
     PilaRecorrido() {
         tope = NULL;
     }
 
+    // Comprueba si la pila no contiene nodos.
     bool estaVacia() {
         return tope == NULL;
     }
 
+    // Inserta, elimina y consulta un nodo del árbol.
     void Push(pNodoArbol nodo);
     pNodoArbol Pop();
     pNodoArbol VerTope();
@@ -440,47 +531,75 @@ pNodoArbol PilaRecorrido::VerTope() {
     return tope->nodoArbol;
 }
 
+// Árbol binario que representa la expresión matemática.
 class Arbol {
 private:
-    pNodoArbol raiz;
+    pNodoArbol raiz; // Nodo raíz del árbol, NULL cuando no existe expresión.
+
 public:
+    // Crea un árbol vacío.
     Arbol() {
-		raiz = NULL;
+        raiz = NULL;
     }
-	pNodoArbol ObtenerRaiz() {
-		return raiz;
-	}
-	void AsignarRaiz(pNodoArbol pRaiz) {
-		raiz = pRaiz;
-	}
+
+    // Devuelve la raíz actual del árbol.
+    pNodoArbol ObtenerRaiz() {
+        return raiz;
+    }
+
+    // Establece una raíz determinada para el árbol.
+    void AsignarRaiz(pNodoArbol pRaiz) {
+        raiz = pRaiz;
+    }
+
+    // Crea y devuelve un nuevo nodo con el valor indicado.
     pNodoArbol CrearNodo(string valor) {
         return new NodoArbol(valor);
     }
+
+    // Asigna un nodo como hijo izquierdo de otro nodo.
     void AsignarIzquierdo(pNodoArbol nodo, pNodoArbol izquierdo) {
         if (nodo != NULL) {
-            nodo->izquierdo = izquierdo;}
+            nodo->izquierdo = izquierdo;
+        }
     }
+
+    // Asigna un nodo como hijo derecho de otro nodo.
     void AsignarDerecho(pNodoArbol nodo, pNodoArbol derecho) {
         if (nodo != NULL) {
-            nodo->derecho = derecho;}
+            nodo->derecho = derecho;
+        }
     }
+
+    // Comprueba y convierte números entre texto y valores numéricos.
     bool EsOperador(string valor);
     double ConvertirNumero(string numero);
+
+    // Define la precedencia de cada operador al evaluar una expresión.
     int PrioridadDentro(string operador);
     int PrioridadFuera(string operador);
-    void AplicarOperador(PilaOperadores& operadores,PilaOperandos& operandos);
+
+    // Combina dos operandos usando el operador de la cima de la pila.
+    void AplicarOperador(PilaOperadores& operadores, PilaOperandos& operandos);
+
+    // Muestra el árbol usando recorridos iterativos.
     void MostrarInordenIterativo();
     void MostrarPreorden();
     void MostrarPreordenRecursivo(pNodoArbol nodo);
     void MostrarPostordenIterativo();
+
+    // Evalúa el árbol mediante una llamada recursiva sobre sus hijos.
     double EvaluarRecursivo(pNodoArbol nodo, PilaOperandos& operandos, ofstream& archivoEvaluacion);
     double Evaluar(ofstream& archivoEvaluacion);
+
+    // Calcula la altura del árbol y prepara su representación gráfica.
     int Altura(pNodoArbol nodo);
     void ImprimirNivel(pNodoArbol nodo, int posicion, int fila, int separacion);
     void GraficarArbol();
     void MostrarArbol();
 };
 
+// Determina si una cadena representa uno de los operadores permitidos.
 bool Arbol::EsOperador(string valor) {
     return valor == "+" ||
         valor == "-" ||
@@ -489,6 +608,7 @@ bool Arbol::EsOperador(string valor) {
         valor == "^";
 }
 
+// Convierte una secuencia de dígitos en un número decimal.
 double Arbol::ConvertirNumero(string numero) {
     double resultado = 0;
     for (int i = 0; i < numero.length(); i++) {
@@ -497,6 +617,7 @@ double Arbol::ConvertirNumero(string numero) {
     return resultado;
 }
 
+// Define la prioridad de un operador cuando está dentro de la pila.
 int Arbol::PrioridadDentro(string operador) {
     if (operador == "^") {
         return 3;
@@ -513,6 +634,7 @@ int Arbol::PrioridadDentro(string operador) {
     return 0;
 }
 
+// Define la prioridad de un operador cuando recién llega desde la expresión.
 int Arbol::PrioridadFuera(string operador) {
     if (operador == "^") {
         return 4;
@@ -529,6 +651,7 @@ int Arbol::PrioridadFuera(string operador) {
     return 0;
 }
 
+// Construye un subárbol con el operador superior y sus dos operandos.
 void Arbol::AplicarOperador(PilaOperadores& operadores, PilaOperandos& operandos) {
     if (operadores.estaVacia() || operandos.estaVacia()) {
         return;
@@ -548,6 +671,7 @@ void Arbol::AplicarOperador(PilaOperadores& operadores, PilaOperandos& operandos
     operandos.Push(operador);
 }
 
+// Recorre el árbol en orden: izquierda, raíz y derecha, usando una pila.
 void Arbol::MostrarInordenIterativo() {
     PilaRecorrido pila;
     pNodoArbol actual = raiz;
@@ -563,6 +687,7 @@ void Arbol::MostrarInordenIterativo() {
     cout << endl;
 }
 
+// Muestra el valor de cada nodo antes de sus hijos de forma recursiva.
 void Arbol::MostrarPreordenRecursivo(pNodoArbol nodo) {
     if (nodo == NULL) {
         return;
@@ -572,11 +697,13 @@ void Arbol::MostrarPreordenRecursivo(pNodoArbol nodo) {
     MostrarPreordenRecursivo(nodo->derecho);
 }
 
+// Inicia la impresión del árbol en preorden desde la raíz.
 void Arbol::MostrarPreorden() {
     MostrarPreordenRecursivo(raiz);
     cout << endl;
 }
 
+// Recorre el árbol en postorden mediante dos pilas: registra primero y muestra después.
 void Arbol::MostrarPostordenIterativo() {
     if (raiz == NULL) {
         return;
@@ -600,50 +727,56 @@ void Arbol::MostrarPostordenIterativo() {
     cout << endl;
 }
 
+// Evalúa de forma recursiva el subárbol y guarda el cálculo del operador.
 double Arbol::EvaluarRecursivo(pNodoArbol nodo,
     PilaOperandos& operandos, ofstream& archivoEvaluacion) {
     if (nodo == NULL) {
         return 0;
     }
-	if (!EsOperador(nodo->valor)) { //Si es un numero,se coloca en la pila de operandos
-		operandos.Push(nodo);
+    // Si el nodo contiene un número, se convierte y se guarda como operando.
+    if (!EsOperador(nodo->valor)) {
+        operandos.Push(nodo);
         return ConvertirNumero(nodo->valor);
     }
+
+    // Se evalúan primero los subárboles izquierdo y derecho.
     double izquierdo = EvaluarRecursivo(nodo->izquierdo, operandos, archivoEvaluacion);
     double derecho = EvaluarRecursivo(nodo->derecho, operandos, archivoEvaluacion);
 
-pNodoArbol nodoDerecho = operandos.Pop();
-if (nodoDerecho != NULL) {
-    if (nodoDerecho->resultado != "") {
-        archivoEvaluacion
-            << "Desapila: "
-            << nodoDerecho->resultado
-            << endl;
+    // Se registran los valores que salen de la pila durante la evaluación.
+    pNodoArbol nodoDerecho = operandos.Pop();
+    if (nodoDerecho != NULL) {
+        if (nodoDerecho->resultado != "") {
+            archivoEvaluacion
+                << "Desapila: "
+                << nodoDerecho->resultado
+                << endl;
+        }
+        else {
+            archivoEvaluacion
+                << "Desapila: "
+                << nodoDerecho->valor
+                << endl;
+        }
     }
-    else {
-        archivoEvaluacion
-            << "Desapila: "
-            << nodoDerecho->valor
-            << endl;
-    }
-}
 
-pNodoArbol nodoIzquierdo = operandos.Pop();
-if (nodoIzquierdo != NULL) {
-    if (nodoIzquierdo->resultado != "") {
-        archivoEvaluacion
-            << "Desapila: "
-            << nodoIzquierdo->resultado
-            << endl;
+    pNodoArbol nodoIzquierdo = operandos.Pop();
+    if (nodoIzquierdo != NULL) {
+        if (nodoIzquierdo->resultado != "") {
+            archivoEvaluacion
+                << "Desapila: "
+                << nodoIzquierdo->resultado
+                << endl;
+        }
+        else {
+            archivoEvaluacion
+                << "Desapila: "
+                << nodoIzquierdo->valor
+                << endl;
+        }
     }
-    else {
-        archivoEvaluacion
-            << "Desapila: "
-            << nodoIzquierdo->valor
-            << endl;
-    }
-}
 
+    // Aplica la operación correspondiente a la raíz del subárbol.
     double resultado = 0;
     if (nodo->valor == "+") {
         resultado = izquierdo + derecho;
@@ -669,18 +802,21 @@ if (nodoIzquierdo != NULL) {
             resultado = resultado * izquierdo;
         }
     }
-    // El resultado se vuelve un operando para continuar la evaluacion
+
+    // El resultado se guarda en el nodo operator y se convierte nuevamente en operando.
     nodo->resultado = to_string(resultado);
     operandos.Push(nodo);
     return resultado;
 }
 
+// Inicializa una pila de operandos y evalúa la raíz del árbol.
 double Arbol::Evaluar(ofstream& archivoEvaluacion) {
     PilaOperandos operandos;
     return EvaluarRecursivo(
-        raiz,operandos,archivoEvaluacion);
+        raiz, operandos, archivoEvaluacion);
 }
 
+// Calcula la altura de un subárbol mediante llamadas recursivas a sus hijos.
 int Arbol::Altura(pNodoArbol nodo) {
     if (nodo == NULL) {
         return 0;
@@ -693,26 +829,32 @@ int Arbol::Altura(pNodoArbol nodo) {
     return alturaDerecha + 1;
 }
 
+// Coloca el valor de un nodo en la posición indicada y dibuja las conexiones.
 void Arbol::ImprimirNivel(pNodoArbol nodo, int posicion, int fila, int separacion) {
     if (nodo == NULL) {
         return;
     }
     gotoxy(posicion, fila);
     cout << nodo->valor;
-    // Conector hacia el hijo izquierdo, en la fila intermedia
+
+    // Conecta el valor con el hijo izquierdo mediante una diagonal.
     if (nodo->izquierdo != NULL) {
         gotoxy(posicion - separacion / 2, fila + 1);
         cout << "/";
     }
-    // Conector hacia el hijo derecho
+
+    // Conecta el valor con el hijo derecho mediante una diagonal.
     if (nodo->derecho != NULL) {
         gotoxy(posicion + separacion / 2, fila + 1);
         cout << "\\";
     }
+
+    // El recorrido recursivo dibuja cada nivel del árbol.
     ImprimirNivel(nodo->izquierdo, posicion - separacion, fila + 2, separacion / 2);
     ImprimirNivel(nodo->derecho, posicion + separacion, fila + 2, separacion / 2);
 }
 
+// Calcula la separación necesaria y mueve el cursor para dibujar el árbol.
 void Arbol::GraficarArbol() {
     if (raiz == NULL) {
         return;
@@ -723,7 +865,8 @@ void Arbol::GraficarArbol() {
         separacion = separacion * 2;
     }
     int posicionInicial = separacion * 2;
-    // Reserva espacio en la consola antes de dibujar
+
+    // Reserva espacio en la consola antes de dibujar el árbol.
     for (int i = 0; i < altura * 2; i++) {
         cout << endl;
     }
@@ -731,10 +874,12 @@ void Arbol::GraficarArbol() {
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &informacion);
     int filaInicial = informacion.dwCursorPosition.Y - altura * 2;
     ImprimirNivel(raiz, posicionInicial, filaInicial, separacion);
-    // Cursor debajo del arbol
+
+    // Mueve el cursor debajo del árbol para conservar la presentación.
     gotoxy(0, filaInicial + altura * 2);
 }
 
+// Presenta el árbol usando su representación gráfica en consola.
 void Arbol::MostrarArbol() {
     GraficarArbol();
 }
