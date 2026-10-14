@@ -4,8 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream> //permite separar los campos de cada linea
-#include "hpdf.h"
+#include <sstream>
+#include "crud.h"
 
 using namespace std;
 
@@ -57,34 +57,31 @@ bool horaValida(string hora)
 }
 
 //------ARCHIVOS---------
-void cargarPaises()
-{
+void cargarPaises(){
     ifstream archivo("Paises.csv");
-    if (!archivo)
-    {
+    if (!archivo){
         cout << "Error al abrir Paises.csv" << endl;
         return;
     }
     string linea;
-    while (getline(archivo, linea))
-    {
-        int pos = linea.find(';'); //obtiene la posiciÃ³n del ';'
-        int codigo = stoi(linea.substr(0, pos)); //extrae el texto antes del ';', lo convierte a entero
-        string nombre = linea.substr(pos + 1); //extrae el texto despues del ';'
-        if (!listaPaises.existe(codigo)) //evita repetidos
-        {
-            listaPaises.insertar(codigo, nombre);
+    string codigo, nombre;
+    getline(archivo, linea); // Saltar encabezado
+    while (getline(archivo, linea)){
+        stringstream datos(linea);
+        getline(datos, codigo, ';');
+        getline(datos, nombre);
+        int codPais = stoi(codigo);
+        if (!arbolPaises.Buscarvalor(codPais)){
+            arbolPaises.InsertaNodo(codPais, 0, nombre);
         }
     }
     archivo.close();
-    cout << "Paises cargados correctamente" << endl;
+    cout << "Paises cargados correctamente." << endl;
 }
 
-void cargarCiudades()
-{
+void cargarCiudades(){
     ifstream archivo("Ciudades.csv");
-    if (!archivo)
-    {
+    if (!archivo){
         cout << "Error al abrir Ciudades.csv" << endl;
         return;
     }
@@ -102,255 +99,26 @@ void cargarCiudades()
         codCiudad = stoi(campo);
         getline(datos, nombre);
 
-        if (listaPaises.existe(codPais) && !listaCiudades.existe(codPais, codCiudad)) //valida pais y ciudad
+        // Verificar que el pais exista y que la ciudad no este repetida.
+        if (arbolPaises.Buscarvalor(codPais) &&!arbolCiudades.Buscarvalor(codPais, codCiudad))
         {
-            listaCiudades.insertar(codPais, codCiudad, nombre);
+            arbolCiudades.InsertaNodo(codPais, codCiudad, nombre);
         }
     }
     archivo.close();
     cout << "Ciudades cargadas correctamente" << endl;
 }
 
-void cargarEspecialidades()
-{
-    ifstream archivo("Especialidades.csv");
-    if (!archivo)
-    {
-        cout << "Error al abrir Especialidades.csv" << endl;
-        return;
-    }
-    string linea;
-    while (getline(archivo, linea))
-    {
-        stringstream datos(linea);
-        string campo;
-        int id;
-        string nombre;
-        string descripcion;
-        getline(datos, campo, ';');
-        id = stoi(campo);
-        getline(datos, nombre, ';');
-        getline(datos, descripcion);
-        if (!listaEspecialidades.existe(id)) //evita especialidades repetidas
-        {
-            listaEspecialidades.insertar(id, nombre, descripcion);
-        }
-    }
-    archivo.close();
-    cout << "Especialidades cargadas correctamente" << endl;
-}
-
-void cargarPacientes()
-{
-    ifstream archivo("Pacientes.csv");
-    if (!archivo)
-    {
-        cout << "Error al abrir Pacientes.csv" << endl;
-        return;
-    }
-    string linea;
-    while (getline(archivo, linea))
-    {
-        stringstream datos(linea);
-        string campo;
-        int id;
-        string nombre;
-        string fecha;
-        string telefono;
-        int codPais;
-        int codCiudad;
-        string correo;
-        getline(datos, campo, ';');
-        id = stoi(campo);
-        getline(datos, nombre, ';');
-        getline(datos, fecha, ';');
-        getline(datos, telefono, ';');
-        getline(datos, campo, ';');
-        codPais = stoi(campo);
-        getline(datos, campo, ';');
-        codCiudad = stoi(campo);
-        getline(datos, correo);
-        if (listaCiudades.existe(codPais, codCiudad) &&
-            !tablaPacientes.existe(id) &&
-            fechaValida(fecha))
-        {
-            tablaPacientes.insertar(id, nombre, fecha, telefono, codPais, codCiudad, correo);
-        }
-    }
-    archivo.close();
-    cout << "Pacientes cargados correctamente" << endl;
-}
-
-void cargarMedicos()
-{
-    ifstream archivo("Medicos.csv");
-    if (!archivo)
-    {
-        cout << "Error al abrir Medicos.csv" << endl;
-        return;
-    }
-    string linea;
-    while (getline(archivo, linea))
-    {
-        stringstream datos(linea);
-        string campo;
-        int id;
-        string nombre;
-        string telefono;
-        string correo;
-        int especialidad;
-        getline(datos, campo, ';');
-        id = stoi(campo);
-        getline(datos, nombre, ';');
-        getline(datos, telefono, ';');
-        getline(datos, correo, ';');
-        getline(datos, campo);
-        especialidad = stoi(campo);
-        if (listaEspecialidades.existe(especialidad) && !tablaMedicos.existe(id)) //valida especialidad y medico
-        {
-            tablaMedicos.insertar(id, nombre, telefono, correo, especialidad);
-        }
-    }
-    archivo.close();
-    cout << "Medicos cargados correctamente" << endl;
-}
-
-void cargarHabitaciones()
-{
-    ifstream archivo("Habitaciones.csv");
-    if (!archivo)
-    {
-        cout << "Error al abrir Habitaciones.csv" << endl;
-        return;
-    }
-    string linea;
-    while (getline(archivo, linea))
-    {
-        stringstream datos(linea);
-        string campo;
-        int id;
-        int numero;
-        int piso;
-        int tipo;
-        int estado;
-        getline(datos, campo, ';');
-        id = stoi(campo);
-        getline(datos, campo, ';');
-        numero = stoi(campo);
-        getline(datos, campo, ';');
-        piso = stoi(campo);
-        getline(datos, campo, ';');
-        tipo = stoi(campo);
-        getline(datos, campo);
-        estado = stoi(campo);
-        if (!listaHabitaciones.existe(id)) //evita habitaciones repetidas
-        {
-            listaHabitaciones.insertar(id, numero, piso, tipo, estado);
-        }
-    }
-    archivo.close();
-    cout << "Habitaciones cargadas correctamente" << endl;
-}
-
-void cargarCitas()
-{
-    ifstream archivo("Citas.csv");
-    if (!archivo)
-    {
-        cout << "Error al abrir Citas.csv" << endl;
-        return;
-    }
-    string linea;
-    while (getline(archivo, linea))
-    {
-        stringstream datos(linea);
-        string campo;
-        int id;
-        int paciente;
-        int medico;
-        int especialidad;
-        string fecha;
-        string hora;
-        string motivo;
-        int estado;
-        getline(datos, campo, ';');
-        id = stoi(campo);
-        getline(datos, campo, ';');
-        paciente = stoi(campo);
-        getline(datos, campo, ';');
-        medico = stoi(campo);
-        getline(datos, campo, ';');
-        especialidad = stoi(campo);
-        getline(datos, fecha, ';');
-        getline(datos, hora, ';');
-        getline(datos, motivo, ';');
-        getline(datos, campo);
-        estado = stoi(campo);
-        if (tablaPacientes.existe(paciente) && tablaMedicos.existe(medico) && !listaCitas.existe(id) && listaEspecialidades.existe(especialidad)) //valida paciente, medico y cita
-        {
-            listaCitas.insertar(id, paciente, medico, especialidad, fecha, hora, motivo, estado);
-        }
-    }
-    archivo.close();
-    cout << "Citas cargadas correctamente" << endl;
-}
-
-void cargarHospitalizaciones()
-{
-    ifstream archivo("Hospitalizaciones.csv");
-    if (!archivo)
-    {
-        cout << "Error al abrir Hospitalizaciones.csv" << endl;
-        return;
-    }
-    string linea;
-    while (getline(archivo, linea))
-    {
-        stringstream datos(linea);
-        string campo;
-        int id;
-        int paciente;
-        int habitacion;
-        int medico;
-        string ingreso;
-        string salida;
-        string motivo;
-        getline(datos, campo, ';');
-        id = stoi(campo);
-        getline(datos, campo, ';');
-        paciente = stoi(campo);
-        getline(datos, campo, ';');
-        habitacion = stoi(campo);
-        getline(datos, campo, ';');
-        medico = stoi(campo);
-        getline(datos, ingreso, ';');
-        getline(datos, salida, ';');
-        getline(datos, motivo);
-        if (tablaPacientes.existe(paciente) &&
-            listaHabitaciones.existe(habitacion) &&
-            tablaMedicos.existe(medico) &&
-            !listaHospitalizaciones.existe(id) &&
-            fechaValida(ingreso) &&
-            fechaValida(salida) &&
-            salida >= ingreso)
-        {
-            listaHospitalizaciones.insertar(id, paciente, habitacion, medico, ingreso, salida, motivo);
-        }
-    }
-    archivo.close();
-    cout << "Hospitalizaciones cargadas correctamente" << endl;
-}
-
 void cargarArchivos()
 {
     cargarPaises();
     cargarCiudades();
-    cargarEspecialidades();
+    /*cargarEspecialidades();
     cargarPacientes();
     cargarMedicos();
     cargarHabitaciones();
     cargarCitas();
-    cargarHospitalizaciones();
+    cargarHospitalizaciones();*/
 }
 
 //---------MENÚ-------
@@ -378,7 +146,7 @@ void menuInserciones() {
         case 2:
             insertarCiudad();
             break;
-        case 3:
+        /*case 3:
             insertarPaciente();
             break;
         case 4:
@@ -395,7 +163,7 @@ void menuInserciones() {
             break;
         case 8:
             insertarHospitalizacion();
-            break;
+            break;*/
         case 0:
             cout << "Regresando..." << endl;
             break;
@@ -429,7 +197,7 @@ void menuBusquedas() {
         case 2:
             buscarCiudad();
             break;
-        case 3:
+        /*case 3:
             buscarPaciente();
             break;
         case 4:
@@ -446,7 +214,7 @@ void menuBusquedas() {
             break;
         case 8:
             buscarHospitalizacionMenu();
-            break;
+            break;*/
         case 0:
             cout << "Regresando..." << endl;
             break;
@@ -456,7 +224,7 @@ void menuBusquedas() {
     } while (opcion != 0);
 }
 
-void menuModificaciones()
+/*void menuModificaciones()
 {
     int opcion;
     do {
@@ -505,74 +273,7 @@ void menuModificaciones()
             cout << "Opcion no valida." << endl;
         }
     } while (opcion != 0);
-}
-
-void menuReportes()
-{
-    int opcion;
-    do
-    {
-        cout << "\n===== REPORTES =====" << endl;
-        cout << "1. Paises" << endl;
-        cout << "2. Ciudades de un pais" << endl;
-        cout << "3. Especialidades" << endl;
-        cout << "4. Habitaciones disponibles" << endl;
-        cout << "5. Habitaciones ocupadas" << endl;
-        cout << "6. Hospitalizaciones" << endl;
-        cout << "7. Hospitalizaciones de un medico" << endl;
-        cout << "8. Medicos" << endl;
-        cout << "9. Medicos de una especialidad" << endl;
-        cout << "10. Citas por fecha" << endl;
-        cout << "11. Citas por especialidad" << endl;
-        cout << "12. Citas de un medico" << endl;
-        cout << "0. Regresar" << endl;
-        cout << "Seleccione una opcion: ";
-        cin >> opcion;
-        switch (opcion)
-        {
-        case 1:
-            reportePaises();
-            break;
-        case 2:
-            reporteCiudades();
-            break;
-        case 3:
-            reporteEspecialidades();
-            break;
-        case 4:
-            reporteHabitacionesDisponibles();
-            break;
-        case 5:
-            reporteHabitacionesOcupadas();
-            break;
-        case 6:
-            reporteHospitalizaciones();
-            break;
-        case 7:
-            reporteHospitalizacionesPorMedico();
-            break;
-        case 8:
-            reporteMedicos();
-            break;
-        case 9:
-            reporteMedicosPorEspecialidad();
-            break;
-        case 10:
-            reporteCitasPorFecha();
-            break;
-        case 11:
-            reporteCitasPorEspecialidad();
-            break;
-        case 12:
-            reporteCitasPorMedico();
-            break;
-        case 0:
-            break;
-        default:
-            cout << "Opcion no valida." << endl;
-        }
-    } while (opcion != 0);
-}
+}*/
 
 void menuMantenimiento() {
     int opcion;
@@ -580,9 +281,8 @@ void menuMantenimiento() {
         cout << "\n===== MANTENIMIENTO DE LA BASE DE DATOS =====" << endl;
         cout << "1. Inserciones" << endl;
         cout << "2. Busquedas" << endl;
-        cout << "3. Eliminaciones" << endl;
-        cout << "4. Modificaciones" << endl;
-        cout << "5. Reportes" << endl;
+        cout << "3. Modificaciones" << endl;
+        cout << "4. Reportes" << endl;
         cout << "0. Regresar" << endl;
         cout << "Digite una opcion: ";
         cin >> opcion;
@@ -594,12 +294,12 @@ void menuMantenimiento() {
         case 2:
             menuBusquedas();
             break;
-        case 3:
+        /*case 3:
             menuModificaciones();
             break;
         case 4:
             menuReportes();
-            break;
+            break;*/
         case 0:
             cout << "Regresando..." << endl;
             break;
@@ -612,12 +312,12 @@ void menuMantenimiento() {
 int main() {
     int opcion;
     do {
-        cout << "\n========== MENU PRINCIPAL ==========" << endl;
-        std::cout << "LibHaru funciona correctamente." << std::endl;
-        cout << "1. Leer Archivos" << endl;
-        cout << "2. Mantenimiento de la Base de Datos" << endl;
+        cout << "\n===== SISTEMA DE GESTION HOSPITALARIA =====" << endl;
+        cout << "1. Leer archivos y construir los arboles" << endl;
+        cout << "2. Mantenimiento de la base de datos" << endl;
+        cout << "3. Mostrar paises ordenados" << endl;
         cout << "0. Salir" << endl;
-        cout << "Digite una opcion: ";
+        cout << "Seleccione una opcion: ";
         cin >> opcion;
 
         switch (opcion)
@@ -627,6 +327,9 @@ int main() {
             break;
         case 2:
             menuMantenimiento();
+            break;
+        case 3:
+            arbolPaises.InordenR();
             break;
         case 0:
             cout << "Programa finalizado." << endl;
