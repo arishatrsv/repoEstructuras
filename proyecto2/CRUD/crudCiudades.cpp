@@ -13,23 +13,12 @@ void insertarCiudad(){
     string nombre;
 
     cout << "Codigo del pais: ";
-    if (!leerEntero(codPais)){
-        cout << "Codigo invalido." << endl;
-        return;
-    }
-
-    if (!arbolPaises.Buscarvalor(codPais)) // validacion: el pais debe existir
-    {
+    if (!arbolPaises.Buscarvalor(codPais)) // validacion: el pais debe existir{
         cout << "El pais no existe." << endl;
         return;
     }
 
     cout << "Codigo de la ciudad: ";
-    if (!leerEntero(codCiudad)){
-        cout << "Codigo invalido." << endl;
-        return;
-    }
-
     if (arbolCiudades.Buscarvalor(codPais, codCiudad)) // validacion: ciudad no repetida
     {
         cout << "La ciudad ya existe en ese pais." << endl;
@@ -37,10 +26,6 @@ void insertarCiudad(){
     }
     cout << "Nombre: ";
     getline(cin, nombre);
-    if (nombre.empty()){
-        cout << "El nombre no puede estar vacio." << endl;
-        return;
-    }
     arbolCiudades.InsertaNodo(codPais, codCiudad, nombre);
     cout << "Ciudad insertada correctamente." << endl;
 }

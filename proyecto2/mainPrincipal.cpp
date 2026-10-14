@@ -86,20 +86,17 @@ void cargarCiudades(){
         return;
     }
     string linea;
-    while (getline(archivo, linea))
-    {
+    string codPais, codCiudad, nombre;
+    getline(archivo, linea); // Saltar encabezado
+    while (getline(archivo, linea)){
         stringstream datos(linea);
-        string campo;
-        int codPais;
-        int codCiudad;
-        string nombre;
-        getline(datos, campo, ';');
-        codPais = stoi(campo);
-        getline(datos, campo, ';');
-        codCiudad = stoi(campo);
+        getline(datos, codPais, ';');
+        codPais = stoi(codPais);
+        getline(datos, codCiudad, ';');
+        codCiudad = stoi(codCiudad);
         getline(datos, nombre);
 
-        // Verificar que el pais exista y que la ciudad no este repetida.
+        // Verifica que el pais exista y que la ciudad no este repetida.
         if (arbolPaises.Buscarvalor(codPais) &&!arbolCiudades.Buscarvalor(codPais, codCiudad))
         {
             arbolCiudades.InsertaNodo(codPais, codCiudad, nombre);
@@ -108,6 +105,35 @@ void cargarCiudades(){
     archivo.close();
     cout << "Ciudades cargadas correctamente" << endl;
 }
+
+
+void cargarTratamientos(){
+    ifstream archivo("Tratamiento.csv");
+    if (!archivo) {
+        cout << "Error al abrir Tratamiento.csv" << endl;
+        return;
+    }
+
+    string linea;
+    string idTratamiento, nombre, descripcion, textoCosto;
+    getline(archivo, linea); // Saltar encabezado
+    while (getline(archivo, linea)) {
+        stringstream datos(linea);
+        getline(datos, idTratamiento, ';');
+        getline(datos, nombre, ';');
+        getline(datos, descripcion, ';');
+        getline(datos, textoCosto);
+
+        int id = stoi(idTratamiento);
+        double costo = stod(textoCosto);
+        if (!arbolTratamientos.Buscar(id)) {
+            arbolTratamientos.Insertar(id, nombre, descripcion, costo);
+        }
+    }
+    archivo.close();
+    cout << "Tratamientos cargados correctamente." << endl;
+}
+
 
 void cargarArchivos()
 {
@@ -119,6 +145,7 @@ void cargarArchivos()
     cargarHabitaciones();
     cargarCitas();
     cargarHospitalizaciones();*/
+	cargarTratamientos();
 }
 
 //---------MENÚ-------
