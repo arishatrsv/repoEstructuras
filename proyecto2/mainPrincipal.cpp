@@ -79,31 +79,54 @@ void cargarPaises(){
     cout << "Paises cargados correctamente." << endl;
 }
 
-void cargarCiudades(){
+void cargarCiudades()
+{
     ifstream archivo("Ciudades.csv");
-    if (!archivo){
+    if (!archivo)
+    {
         cout << "Error al abrir Ciudades.csv" << endl;
         return;
     }
     string linea;
-    string codPais, codCiudad, nombre;
+    string textoCodPais, textoCodCiudad, nombre;
     getline(archivo, linea); // Saltar encabezado
-    while (getline(archivo, linea)){
-        stringstream datos(linea);
-        getline(datos, codPais, ';');
-        codPais = stoi(codPais);
-        getline(datos, codCiudad, ';');
-        codCiudad = stoi(codCiudad);
-        getline(datos, nombre);
-
-        // Verifica que el pais exista y que la ciudad no este repetida.
-        if (arbolPaises.Buscarvalor(codPais) &&!arbolCiudades.Buscarvalor(codPais, codCiudad))
+    while (getline(archivo, linea))
+    {
+        if (linea.empty())
         {
-            arbolCiudades.InsertaNodo(codPais, codCiudad, nombre);
+            continue;
         }
+        stringstream datos(linea);
+        getline(datos, textoCodPais, ';');
+        getline(datos, textoCodCiudad, ';');
+        getline(datos, nombre);
+        if (textoCodPais.empty() ||
+            textoCodCiudad.empty() ||
+            nombre.empty())
+        {
+            cout << "Registro incompleto: " << linea << endl;
+            continue;
+        }
+        int codPais = stoi(textoCodPais);
+        int codCiudad = stoi(textoCodCiudad);
+        // Verificar que el pais exista.
+        if (!arbolPaises.Buscarvalor(codPais))
+        {
+            cout << "No se puede cargar la ciudad " << codCiudad
+                << ": el pais " << codPais << " no existe." << endl;
+            continue;
+        }
+        // Evitar ciudades duplicadas dentro del mismo pais.
+        if (arbolCiudades.Buscarvalor(codPais, codCiudad))
+        {
+            cout << "Ciudad duplicada: pais " << codPais
+                << ", ciudad " << codCiudad << endl;
+            continue;
+        }
+        arbolCiudades.InsertaNodo(codPais, codCiudad, nombre);
     }
     archivo.close();
-    cout << "Ciudades cargadas correctamente" << endl;
+    cout << "Ciudades cargadas correctamente." << endl;
 }
 
 
@@ -134,6 +157,46 @@ void cargarTratamientos(){
     cout << "Tratamientos cargados correctamente." << endl;
 }
 
+// Carga los diagnosticos desde el archivo CSV.
+void cargarDiagnosticos()
+{
+    ifstream archivo("Diagnostico.csv");
+    if (!archivo)
+    {
+        cout << "Error al abrir Diagnostico.csv" << endl;
+        return;
+    }
+    string linea;
+    string codigo;
+    string nombre;
+    string descripcion;
+    getline(archivo, linea);
+    while (getline(archivo, linea))
+    {
+        if (linea.empty())
+        {
+            continue;
+        }
+        stringstream datos(linea);
+        getline(datos, codigo, ';');
+        getline(datos, nombre, ';');
+        getline(datos, descripcion);
+        if (codigo.empty() || nombre.empty() || descripcion.empty())
+        {
+            cout << "Registro incompleto: " << linea << endl;
+            continue;
+        }
+        if (arbolDiagnosticos.buscar(codigo))
+        {
+            cout << "Diagnostico duplicado: " << codigo << endl;
+            continue;
+        }
+        arbolDiagnosticos.insertar(codigo, nombre, descripcion);
+    }
+    archivo.close();
+    cout << "Diagnosticos cargados correctamente." << endl;
+}
+
 
 void cargarArchivos()
 {
@@ -146,7 +209,10 @@ void cargarArchivos()
     cargarCitas();
     cargarHospitalizaciones();*/
 	cargarTratamientos();
+    void cargarArchivos();
+    cargarDiagnosticos();
 }
+
 
 //---------MENÚ-------
 void menuInserciones() {

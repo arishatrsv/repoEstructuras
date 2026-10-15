@@ -3,22 +3,29 @@
 
 #include "arboles/ABBusqueda.h"
 #include "arboles/arbolRN.h"
+#include "arboles/BinarioAA.h"
 
 // Arboles
-extern ABBusqueda arbolPaises;
+extern ABBusqueda arbolPaises; //extern para qye se pueda usar en otros archivos
 extern ABBusqueda arbolCiudades;
 extern ArbolRN arbolTratamientos;
+extern BinarioAA arbolDiagnosticos;
 
 // Paises
 void insertarPais();
 void buscarPais();
 
-//Ciudades
+// Ciudades
 void insertarCiudad();
 void buscarCiudad();
 
-//tratamientos
+// Tratamientos
 void insertarTratamiento();
 void buscarTratamiento();
+
+// Diagnosticos
+void insertarDiagnostico();
+void buscarDiagnostico();
+void mostrarDiagnosticos();
 
 #endif
