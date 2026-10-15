@@ -209,7 +209,6 @@ void cargarArchivos()
     cargarCitas();
     cargarHospitalizaciones();*/
 	cargarTratamientos();
-    void cargarArchivos();
     cargarDiagnosticos();
 }
 
@@ -227,6 +226,7 @@ void menuInserciones() {
         cout << "6. Cita" << endl;
         cout << "7. Habitacion" << endl;
         cout << "8. Hospitalizacion" << endl;
+        cout << "9. Diagnostico" << endl;
         cout << "0. Regresar" << endl;
         cout << "Digite una opcion: ";
         cin >> opcion;
@@ -257,6 +257,9 @@ void menuInserciones() {
         case 8:
             insertarHospitalizacion();
             break;*/
+        case 9:
+            insertarDiagnostico();
+            break;
         case 0:
             cout << "Regresando..." << endl;
             break;
@@ -278,6 +281,7 @@ void menuBusquedas() {
         cout << "6. Cita" << endl;
         cout << "7. Habitacion" << endl;
         cout << "8. Hospitalizacion" << endl;
+        cout << "9. Diagnostico" << endl;
         cout << "0. Regresar" << endl;
         cout << "Digite una opcion: ";
         cin >> opcion;
@@ -308,6 +312,9 @@ void menuBusquedas() {
         case 8:
             buscarHospitalizacionMenu();
             break;*/
+        case 9:
+            buscarDiagnostico();
+            break;
         case 0:
             cout << "Regresando..." << endl;
             break;
