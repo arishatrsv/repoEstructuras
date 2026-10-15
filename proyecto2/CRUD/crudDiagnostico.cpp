@@ -33,8 +33,6 @@ void insertarDiagnostico()
 }
 
 // Busca un diagnostico por su codigo.
-// Busca un diagnostico por su codigo.
-// Busca un diagnostico por su codigo.
 void buscarDiagnostico()
 {
     string codigo;

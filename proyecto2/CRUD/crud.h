@@ -8,7 +8,7 @@
 // Arboles
 extern ABBusqueda arbolPaises; //extern para qye se pueda usar en otros archivos
 extern ABBusqueda arbolCiudades;
-extern ArbolRN arbolTratamientos;
+extern BinarioRN arbolTratamientos;
 extern BinarioAA arbolDiagnosticos;
 
 // Paises
