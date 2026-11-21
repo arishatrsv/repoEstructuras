@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="TareaGrafo.vcxproj" Id="50bd9e3f-6569-4ff5-9462-42fff25f816b" />
+</Solution>
