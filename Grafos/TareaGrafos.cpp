@@ -83,6 +83,7 @@ public:
         string linea;
         while (getline(archivo, linea))
         {
+            if (linea.size() == 0) continue; //salta lineas en blanco
             int pos = linea.find(';'); //obtiene la posicion del ';'
             string cod = linea.substr(0, pos); //extrae el texto antes del ';'
             string nom = linea.substr(pos + 1); //extrae el texto despues del ';'
@@ -222,6 +223,10 @@ void prim(Grafo& g) {
     cout << "Punto de partida: ";
     cin >> cod;
     int ini = g.buscar(cod);
+    if (ini == -1) {
+        cout << "Codigo no valido o archivos no leidos" << endl;
+        return;
+    }
 
     int enW[MAX];
     int W[MAX];
@@ -249,6 +254,10 @@ void prim(Grafo& g) {
                 }
             }
         }
+        if (mejorD == -1) { //grafo no conexo
+            f << "El grafo no es conexo, no se puede completar el AEM" << endl;
+            break;
+        }
         enW[mejorD] = 1;
         W[cant++] = mejorD;
         costo += mejorP;
@@ -265,6 +274,10 @@ void prim(Grafo& g) {
 
 //Kruskal
 void kruskal(Grafo& g) {
+    if (g.n == 0) {
+        cout << "Primero debe leer los archivos" << endl;
+        return;
+    }
     int aO[MAX * MAX], aD[MAX * MAX], aP[MAX * MAX];
     int cantA = 0;
 
@@ -289,6 +302,7 @@ void kruskal(Grafo& g) {
             }
 
     int comp[MAX];
+    int usada[MAX * MAX]; // 1 si la arista queda en el AEM
     for (int i = 0; i < g.n; i++) comp[i] = i;
 
     int costo = 0;
@@ -299,22 +313,22 @@ void kruskal(Grafo& g) {
         f << g.codigo[aO[i]] << g.codigo[aD[i]] << " " << aP[i];
         if (comp[aO[i]] == comp[aD[i]]) {
             f << "  ciclo" << endl;
+            usada[i] = 0;
         }
         else {
-            f << endl;
-        }
-    }
-    f << "Aristas del AEM:" << endl;
-    for (int i = 0; i < cantA; i++) {
-        if (comp[aO[i]] != comp[aD[i]]) {
             int viejo = comp[aD[i]];
             int nuevo = comp[aO[i]];
             for (int k = 0; k < g.n; k++)
                 if (comp[k] == viejo) comp[k] = nuevo;
             costo += aP[i];
-            f << g.codigo[aO[i]] << " - " << g.codigo[aD[i]] << " (" << aP[i] << ")" << endl;
+            usada[i] = 1;
+            f << endl;
         }
     }
+    f << "Aristas del AEM:" << endl;
+    for (int i = 0; i < cantA; i++)
+        if (usada[i])
+            f << g.codigo[aO[i]] << " - " << g.codigo[aD[i]] << " (" << aP[i] << ")" << endl;
     f << "Costo = " << costo << endl;
     f.close();
     cout << "Kruskal: AEM y costo (" << costo << ") guardados en AEM_Kruskal.txt" << endl;
@@ -329,6 +343,10 @@ void dijkstra(Grafo& g) {
     cout << "Punto de llegada: ";
     cin >> cod;
     int fin = g.buscar(cod);
+    if (ini == -1 || fin == -1) {
+        cout << "Codigo no valido o archivos no leidos" << endl;
+        return;
+    }
 
     int resuelto[MAX];
     int orden[MAX];          // nodos resueltos en orden
@@ -371,6 +389,12 @@ void dijkstra(Grafo& g) {
             }
         }
 
+        if (mejorD == -1) { //no hay ruta
+            f << endl << "No hay ruta de " << g.codigo[ini] << " a " << g.codigo[fin] << endl;
+            f.close();
+            cout << "Dijkstra: no hay ruta entre esas ciudades" << endl;
+            return;
+        }
         resuelto[mejorD] = 1;
         orden[cantRes++] = mejorD;
         dist[mejorD] = mejorTotal;
@@ -442,6 +466,10 @@ void puntosArticulacion(Grafo& g) {
     cout << "Punto de partida: ";
     cin >> cod;
     int ini = g.buscar(cod);
+    if (ini == -1) {
+        cout << "Codigo no valido o archivos no leidos" << endl;
+        return;
+    }
 
     for (int i = 0; i < g.n; i++) {
         num[i] = 0;
@@ -530,6 +558,10 @@ void anchura(Grafo& g) {
     cout << "Punto de partida: ";
     cin >> cod;
     int ini = g.buscar(cod);
+    if (ini == -1) {
+        cout << "Codigo no valido o archivos no leidos" << endl;
+        return;
+    }
 
     int visitado[MAX];
     int ingreso[MAX], salida[MAX];
@@ -579,6 +611,10 @@ void profundidad(Grafo& g) {
     cout << "Punto de partida: ";
     cin >> cod;
     int ini = g.buscar(cod);
+    if (ini == -1) {
+        cout << "Codigo no valido o archivos no leidos" << endl;
+        return;
+    }
 
     int visitado[MAX];
     Arista* actual[MAX];      // proximo vecino por revisar de cada vertice
